@@ -235,12 +235,12 @@ export default function Identidad() {
 
             <button
               onClick={() => setStep('peso')}
-              disabled={partes.length < 2}
+              disabled={partes.length < 3}
               className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
-              {partes.length < 2
-                ? `Añade al menos ${2 - partes.length} parte${partes.length === 1 ? ' más' : 's'}`
+              {partes.length < 3
+                ? `Añade al menos ${3 - partes.length} parte${3 - partes.length === 1 ? ' más' : 's más'}`
                 : `Explorar mis ${partes.length} partes →`}
             </button>
 
