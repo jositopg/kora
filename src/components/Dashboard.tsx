@@ -38,13 +38,6 @@ const modules: ModuleCard[] = [
     color: '#7a9e7e',
   },
   {
-    icon: '🧭',
-    title: 'Brújula de Valores',
-    description: 'Alinéate con tus valores',
-    path: '/valores',
-    color: '#8a6b8c',
-  },
-  {
     icon: '🔍',
     title: 'Voces Internas',
     description: 'Descubre de dónde vienen tus mensajes',

@@ -6,7 +6,6 @@ import Parcelas from './components/Parcelas'
 import Emociones from './components/Emociones'
 import Pensamientos from './components/Pensamientos'
 import Necesidades from './components/Necesidades'
-import Valores from './components/Valores'
 import Voces from './components/Voces'
 
 export default function App() {
@@ -23,7 +22,6 @@ export default function App() {
       <Route path="/emociones" element={<Emociones />} />
       <Route path="/pensamientos" element={<Pensamientos />} />
       <Route path="/necesidades" element={<Necesidades />} />
-      <Route path="/valores" element={<Valores />} />
       <Route path="/voces" element={<Voces />} />
     </Routes>
   )
