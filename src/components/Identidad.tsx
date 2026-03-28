@@ -240,7 +240,7 @@ export default function Identidad() {
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
               {partes.length < 3
-                ? `Añade al menos ${3 - partes.length} parte${3 - partes.length === 1 ? ' más' : 's más'}`
+                ? 'Añade al menos 3 partes'
                 : `Explorar mis ${partes.length} partes →`}
             </button>
 
