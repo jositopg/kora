@@ -251,7 +251,7 @@ export default function Pensamientos() {
                       onClick={() => handleAnswer(q.id, true)}
                       className="flex-1 py-2 rounded-full font-sans text-sm font-medium transition-all"
                       style={{
-                        background: answers[q.id] === true ? '#9e4a2c' : 'var(--color-surface-low)',
+                        background: answers[q.id] === true ? '#A0633A' : 'var(--color-surface-low)',
                         color: answers[q.id] === true ? '#fff' : 'var(--color-text-muted)',
                       }}
                     >
@@ -261,7 +261,7 @@ export default function Pensamientos() {
                       onClick={() => handleAnswer(q.id, false)}
                       className="flex-1 py-2 rounded-full font-sans text-sm font-medium transition-all"
                       style={{
-                        background: answers[q.id] === false ? 'var(--color-accent)' : 'var(--color-surface-low)',
+                        background: answers[q.id] === false ? '#7a6152' : 'var(--color-surface-low)',
                         color: answers[q.id] === false ? '#fff' : 'var(--color-text-muted)',
                       }}
                     >
@@ -271,7 +271,7 @@ export default function Pensamientos() {
                       onClick={() => handleAnswer(q.id, null)}
                       className="flex-1 py-2 rounded-full font-sans text-sm font-medium transition-all"
                       style={{
-                        background: answers[q.id] === null ? 'var(--color-primary)' : 'var(--color-surface-low)',
+                        background: answers[q.id] === null ? '#c4a882' : 'var(--color-surface-low)',
                         color: answers[q.id] === null ? '#fff' : 'var(--color-text-muted)',
                       }}
                     >
