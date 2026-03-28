@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KORA — Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #F5F0EB;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 80px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .label {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: #999;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* Versión horizontal — logo completo */
+    .preview-horizontal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Versión solo icono (app icon) */
+    .preview-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .icon-wrap {
+      background: #F5F0EB;
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+    }
+
+    .row {
+      display: flex;
+      gap: 80px;
+      align-items: flex-end;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Logo horizontal -->
+  <div class="preview-horizontal">
+    <div class="label">logo horizontal</div>
+    <svg viewBox="0 0 240 130" fill="none" xmlns="http://www.w3.org/2000/svg" width="300">
+      <path d="M 22,95 L 22,43 A 28,28 0 0,1 78,43 L 78,95"
+            stroke="#A0633A" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="12" y1="100" x2="88" y2="100"
+            stroke="#A0633A" stroke-width="3.5" stroke-linecap="round"/>
+      <text x="106" y="82"
+            font-family="'DM Sans', sans-serif"
+            font-size="34"
+            font-weight="300"
+            letter-spacing="10"
+            fill="#111111">KORA</text>
+    </svg>
+  </div>
+
+  <!-- Íconos -->
+  <div class="preview-icon">
+    <div class="label">ícono app</div>
+    <div class="row">
+      <div style="display:flex; flex-direction:column; align-items:center; gap:12px">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 60 70" fill="none" xmlns="http://www.w3.org/2000/svg" width="44">
+            <path d="M 10,58 L 10,26 A 20,20 0 0,1 50,26 L 50,58"
+                  stroke="#A0633A" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="4" y1="63" x2="56" y2="63"
+                  stroke="#A0633A" stroke-width="3.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <span style="font-size:11px; color:#999; letter-spacing:4px">KORA</span>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
