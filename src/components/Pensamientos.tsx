@@ -77,7 +77,7 @@ export default function Pensamientos() {
   const [entries, setEntries] = useLocalStorage<PensamientoEntry[]>('santuario_reflexiones', [])
   const [step, setStep] = useState<Step>('input')
   const [pensamiento, setPensamiento] = useState('')
-  const [answers, setAnswers] = useState<Record<string, boolean>>({})
+  const [answers, setAnswers] = useState<Record<string, boolean | null>>({})
   const [reframe, setReframe] = useState('')
   const [showHistory, setShowHistory] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -89,7 +89,7 @@ export default function Pensamientos() {
     setStep('questions')
   }
 
-  const handleAnswer = (id: string, val: boolean) => {
+  const handleAnswer = (id: string, val: boolean | null) => {
     setAnswers(prev => ({ ...prev, [id]: val }))
   }
 
@@ -266,6 +266,16 @@ export default function Pensamientos() {
                       }}
                     >
                       No
+                    </button>
+                    <button
+                      onClick={() => handleAnswer(q.id, null)}
+                      className="flex-1 py-2 rounded-full font-sans text-sm font-medium transition-all"
+                      style={{
+                        background: answers[q.id] === null ? 'var(--color-primary)' : 'var(--color-surface-low)',
+                        color: answers[q.id] === null ? '#fff' : 'var(--color-text-muted)',
+                      }}
+                    >
+                      No sé
                     </button>
                   </div>
                 </div>

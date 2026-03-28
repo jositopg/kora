@@ -19,7 +19,7 @@ export interface ParcelasData {
 export interface PensamientoEntry {
   id: string
   pensamiento: string
-  answers: Record<string, boolean>
+  answers: Record<string, boolean | null>
   distortions: string[]
   reframe: string
   createdAt: string
