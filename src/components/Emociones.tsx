@@ -3,7 +3,7 @@ import PageHeader from './ui/PageHeader'
 import { EMOTIONS } from '../data/emotions'
 import type { TertiaryEmotion } from '../types'
 
-type Level = 'primary' | 'secondary' | 'tertiary' | 'definition'
+type Level = 'primary' | 'secondary' | 'tertiary' | 'confirmed'
 
 export default function Emociones() {
   const [level, setLevel] = useState<Level>('primary')
@@ -39,7 +39,10 @@ export default function Emociones() {
 
   const selectTertiary = (t: TertiaryEmotion) => {
     setSelectedTertiary(t)
-    setLevel('definition')
+  }
+
+  const confirmTertiary = () => {
+    setLevel('confirmed')
   }
 
   return (
@@ -169,17 +172,17 @@ export default function Emociones() {
         {level === 'tertiary' && selectedPrimary && selectedSecondary && (
           <div>
             <p className="font-sans text-sm text-text-muted mb-4">
-              ¿Con cuál te identificas más?
+              Toca cada emoción para ver su definición. Cuando encuentres la tuya, confírmala.
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 mb-4">
               {selectedSecondary.tertiary.map((t) => (
                 <button
                   key={t.name}
                   onClick={() => selectTertiary(t)}
                   className="p-4 rounded-2xl text-left transition-all duration-150 hover:scale-[1.02]"
                   style={{
-                    background: `${selectedPrimary.color}14`,
-                    border: `1.5px solid ${selectedPrimary.color}33`,
+                    background: selectedTertiary?.name === t.name ? `${selectedPrimary.color}28` : `${selectedPrimary.color}10`,
+                    border: selectedTertiary?.name === t.name ? `2px solid ${selectedPrimary.color}` : `1.5px solid ${selectedPrimary.color}33`,
                   }}
                 >
                   <p className="font-sans font-semibold text-sm" style={{ color: selectedPrimary.color }}>
@@ -188,11 +191,40 @@ export default function Emociones() {
                 </button>
               ))}
             </div>
+
+            {/* Definition panel — shown inline when a tertiary is selected */}
+            {selectedTertiary && (
+              <div>
+                <div
+                  className="rounded-2xl p-5 mb-4"
+                  style={{
+                    background: `${selectedPrimary.color}10`,
+                    border: `1.5px solid ${selectedPrimary.color}30`,
+                  }}
+                >
+                  <h2 className="font-serif text-lg font-semibold mb-1" style={{ color: selectedPrimary.color }}>
+                    {selectedTertiary.name}
+                  </h2>
+                  <p className="font-sans text-xs text-text-muted mb-3 uppercase tracking-wide">
+                    {selectedPrimary.name} › {selectedSecondary.name}
+                  </p>
+                  <p className="font-sans text-sm text-text leading-relaxed">{selectedTertiary.definition}</p>
+                </div>
+
+                <button
+                  onClick={confirmTertiary}
+                  className="w-full py-4 rounded-full font-sans text-sm font-semibold transition-all hover:opacity-90"
+                  style={{ background: selectedPrimary.color, color: '#fff' }}
+                >
+                  Sí, esto es lo que siento
+                </button>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Definition */}
-        {level === 'definition' && selectedTertiary && selectedPrimary && (
+        {/* Confirmed */}
+        {level === 'confirmed' && selectedTertiary && selectedPrimary && (
           <div>
             <div
               className="rounded-2xl p-6 mb-5"
