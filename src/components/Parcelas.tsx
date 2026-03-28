@@ -278,7 +278,7 @@ export default function Parcelas() {
           {[
             { label: '¿Qué piensas o sientes al ver la diferencia entre los dos dibujos?', value: reflexion1, onChange: setReflexion1 },
             { label: '¿Cómo podrías acercar el dibujo actual al ideal?', value: reflexion2, onChange: setReflexion2 },
-            { label: '¿Cuáles son las primeras acciones concretas que podrías hacer y qué limitantes existen?', value: reflexion3, onChange: setReflexion3 },
+            { label: '¿Cuáles son las primeras acciones concretas que podrías hacer y qué barreras existen?', value: reflexion3, onChange: setReflexion3 },
           ].map((r, i) => (
             <div key={i} className="mb-4">
               <label className="block font-sans text-sm text-text mb-2">{r.label}</label>
