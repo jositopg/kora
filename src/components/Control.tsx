@@ -26,6 +26,24 @@ const SOCRATIC_Q: Record<Zona, (texto: string) => string> = {
   fuera: (t) => `"${t}" está fuera de tu control. ¿Qué necesitarías aceptar o soltar para no gastar más energía en ello?`,
 }
 
+function ControlPill({
+  x, y, label, bg, textColor, fs, ph, prx,
+}: {
+  x: number; y: number; label: string; bg: string; textColor: string
+  fs: number; ph: number; prx: number
+}) {
+  const w = Math.max(label.length * fs * 0.62 + 10, 28)
+  return (
+    <g>
+      <rect x={x - w / 2} y={y - ph / 2} width={w} height={ph} rx={prx} fill={bg} />
+      <text x={x} y={y + fs * 0.38} textAnchor="middle" fontSize={fs}
+        fill={textColor} fontFamily="Manrope, sans-serif" fontWeight="600">
+        {label}
+      </text>
+    </g>
+  )
+}
+
 function TresCirculos({
   variables,
   small = false,
@@ -33,53 +51,76 @@ function TresCirculos({
   variables: ControlVariable[]
   small?: boolean
 }) {
-  const size = small ? 200 : 260
+  const size = small ? 220 : 300
   const cx = size / 2
   const cy = size / 2
-  const r3 = small ? 88 : 115
-  const r2 = small ? 58 : 76
-  const r1 = small ? 28 : 38
+  const r3 = small ? 100 : 138
+  const r2 = small ? 66 : 90
+  const r1 = small ? 32 : 44
 
-  const total = variables.filter(v => v.zona === 'total').length
-  const influencia = variables.filter(v => v.zona === 'influencia').length
-  const fuera = variables.filter(v => v.zona === 'fuera').length
+  const trunc = (s: string, n: number) => s.length > n ? s.slice(0, n - 1) + '…' : s
+  const maxLen = small ? 8 : 11
+  const fs = small ? 7 : 8.5
+  const ph = small ? 12 : 14
+  const prx = small ? 5 : 6
+
+  const byZona = {
+    total: variables.filter(v => v.zona === 'total'),
+    influencia: variables.filter(v => v.zona === 'influencia'),
+    fuera: variables.filter(v => v.zona === 'fuera'),
+  }
+
+  // Distribute items at a given radius, equally spaced angularly, starting at top
+  const positions = (items: ControlVariable[], midR: number) =>
+    items.map((v, i) => {
+      const n = items.length
+      const angle = n === 1 ? -Math.PI / 2 : (i / n) * 2 * Math.PI - Math.PI / 2
+      return { label: trunc(v.texto, maxLen), x: cx + midR * Math.cos(angle), y: cy + midR * Math.sin(angle) }
+    })
+
+  // Inner: stack vertically in center
+  const innerPills = byZona.total.map((v, i) => ({
+    label: trunc(v.texto, maxLen),
+    x: cx,
+    y: cy + (i - (byZona.total.length - 1) / 2) * (ph + 3),
+  }))
+
+  const midPills = positions(byZona.influencia, (r1 + r2) / 2)
+  const outerPills = positions(byZona.fuera, (r2 + r3) / 2)
 
   return (
     <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
-      {/* Outer — fuera de control */}
+      {/* Circles */}
       <circle cx={cx} cy={cy} r={r3} fill="#ede6db" stroke="#c4b8a8" strokeWidth="1.5"/>
-      {/* Middle — influencia */}
-      <circle cx={cx} cy={cy} r={r2} fill="#d4b89a" opacity="0.6"/>
-      {/* Inner — control total */}
+      <circle cx={cx} cy={cy} r={r2} fill="#d4b89a" opacity="0.65"/>
       <circle cx={cx} cy={cy} r={r1} fill="#A0633A" opacity="0.9"/>
 
-      {/* Labels */}
-      <text x={cx} y={cy - r3 + (small ? 14 : 17)} textAnchor="middle"
-        fontSize={small ? 8 : 9} fill="#7a6b5a" fontFamily="Manrope, sans-serif">
-        Fuera de control
-      </text>
-      <text x={cx} y={cy + r3 - (small ? 8 : 10)} textAnchor="middle"
-        fontSize={small ? 9 : 10} fontWeight="600" fill="#7a6b5a" fontFamily="Manrope, sans-serif">
-        {fuera > 0 ? `${fuera}` : ''}
-      </text>
+      {/* Zone labels when empty */}
+      {byZona.fuera.length === 0 && (
+        <text x={cx} y={cy - r3 + 14} textAnchor="middle" fontSize={small ? 7 : 8.5}
+          fill="#7a6b5a" fontFamily="Manrope, sans-serif">Fuera de control</text>
+      )}
+      {byZona.influencia.length === 0 && (
+        <text x={cx} y={cy - r2 + 13} textAnchor="middle" fontSize={small ? 7 : 8.5}
+          fill="#7a5a3a" fontFamily="Manrope, sans-serif">Influencia</text>
+      )}
+      {byZona.total.length === 0 && (
+        <text x={cx} y={cy + 4} textAnchor="middle" fontSize={small ? 6.5 : 8}
+          fill="#fff" fontFamily="Manrope, sans-serif">Control</text>
+      )}
 
-      <text x={cx} y={cy - r2 + (small ? 13 : 16)} textAnchor="middle"
-        fontSize={small ? 8 : 9} fill="#7a5a3a" fontFamily="Manrope, sans-serif">
-        Influencia
-      </text>
-      <text x={cx} y={cy + r2 - (small ? 7 : 9)} textAnchor="middle"
-        fontSize={small ? 9 : 10} fontWeight="600" fill="#7a5a3a" fontFamily="Manrope, sans-serif">
-        {influencia > 0 ? `${influencia}` : ''}
-      </text>
-
-      <text x={cx} y={cy - 5} textAnchor="middle"
-        fontSize={small ? 7 : 8} fill="#fff" fontFamily="Manrope, sans-serif">
-        Control
-      </text>
-      <text x={cx} y={cy + (small ? 9 : 11)} textAnchor="middle"
-        fontSize={small ? 13 : 17} fontWeight="700" fill="#fff" fontFamily="Manrope, sans-serif">
-        {total > 0 ? total : ''}
-      </text>
+      {/* Outer ring pills */}
+      {outerPills.map((p, i) => (
+        <ControlPill key={i} {...p} bg="rgba(255,250,245,0.90)" textColor="#7a6b5a" fs={fs} ph={ph} prx={prx}/>
+      ))}
+      {/* Middle ring pills */}
+      {midPills.map((p, i) => (
+        <ControlPill key={i} {...p} bg="rgba(255,246,236,0.92)" textColor="#6b4a28" fs={fs} ph={ph} prx={prx}/>
+      ))}
+      {/* Inner pills */}
+      {innerPills.map((p, i) => (
+        <ControlPill key={i} {...p} bg="rgba(255,255,255,0.22)" textColor="#fff" fs={fs} ph={ph} prx={prx}/>
+      ))}
     </svg>
   )
 }
