@@ -125,7 +125,7 @@ export default function Identidad() {
     <div className="min-h-screen pb-16" style={{ background: 'var(--color-bg)' }}>
       <div className="max-w-2xl mx-auto px-6 pt-8">
         <PageHeader
-          title="Flexibilidad de Identidad"
+          title="¿Qué te define?"
           subtitle="Todas tus partes tienen su lugar"
         />
 

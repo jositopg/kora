@@ -107,8 +107,8 @@ const modules: ModuleCard[] = [
   },
   {
     icon: IconIdentidad,
-    title: 'Flexibilidad de Identidad',
-    description: 'Eres más que cualquier etiqueta',
+    title: '¿Qué te define?',
+    description: 'Ampliando nuestro autoconcepto',
     path: '/identidad',
     color: '#a87070',
     bg: '#ecdad5',

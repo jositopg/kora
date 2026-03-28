@@ -15,7 +15,7 @@ const MODULOS: Record<string, string> = {
   necesidades: 'Rastreo de Necesidades',
   parcelas: 'Parcelas de la Vida',
   voces: 'Voces Internas',
-  identidad: 'Flexibilidad de Identidad',
+  identidad: '¿Qué te define?',
   control: 'Círculo de Control',
 }
 
