@@ -75,6 +75,87 @@ function formatDate(iso: string): string {
   })
 }
 
+const DISTORSIONES_INFO = [
+  {
+    nombre: 'Pensamiento todo-o-nada',
+    descripcion: 'Ves las situaciones en blanco o negro, sin matices. Si algo no es perfecto, lo consideras un fracaso total. Las palabras "siempre", "nunca", "todo" o "nada" son señales habituales.',
+  },
+  {
+    nombre: 'Lectura del pensamiento',
+    descripcion: 'Crees saber lo que los demás están pensando sobre ti, normalmente algo negativo, sin tener evidencia real de ello. Es como intentar leer la mente ajena sin datos objetivos.',
+  },
+  {
+    nombre: 'Adivinación',
+    descripcion: 'Anticipas que las cosas van a salir mal y actúas como si esa predicción fuera un hecho. El futuro se convierte en una amenaza antes de que ocurra.',
+  },
+  {
+    nombre: 'Magnificación / Minimización',
+    descripcion: 'Amplías la importancia de los errores, problemas o defectos propios, y reduces o ignoras los logros o aspectos positivos. También puede funcionar al revés: exagerar los logros ajenos y minimizar los propios.',
+  },
+  {
+    nombre: 'Personalización',
+    descripcion: 'Te atribuyes la responsabilidad de cosas que no dependen de ti o que solo son parcialmente tuyas. Cuando algo sale mal, automáticamente te señalas a ti mismo/a como causa.',
+  },
+  {
+    nombre: 'Conclusiones precipitadas',
+    descripcion: 'Llegas a conclusiones negativas sin evidencia suficiente para sostenerlas. Un pequeño dato se convierte en una certeza, saltando pasos lógicos.',
+  },
+  {
+    nombre: 'Etiquetación',
+    descripcion: 'En lugar de describir un error concreto, te defines globalmente de forma negativa: "soy un fracasado", "soy tonta", "soy mala persona". Una etiqueta rígida sustituye a una valoración más matizada.',
+  },
+  {
+    nombre: 'Filtro mental',
+    descripcion: 'Te centras exclusivamente en un detalle negativo y lo rumiás tanto que toda tu visión de la realidad se vuelve oscura, ignorando el resto de información disponible.',
+  },
+]
+
+function DistorsionesCognitivas() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{ background: 'var(--color-surface)', boxShadow: '0 2px 12px rgba(61,50,40,0.07)' }}
+    >
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-5 py-4 text-left"
+      >
+        <span className="font-sans text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--color-primary)' }}>
+          ¿Qué son las distorsiones cognitivas?
+        </span>
+        <span className="font-sans text-base text-text-muted" style={{ lineHeight: 1 }}>
+          {open ? '−' : '+'}
+        </span>
+      </button>
+
+      {open && (
+        <div className="px-5 pb-5">
+          <p className="font-sans text-sm text-text leading-relaxed mb-4">
+            Las distorsiones cognitivas son patrones de pensamiento que se alejan de la realidad de forma sistemática. No son mentiras que nos decimos conscientemente — son formas automáticas en las que nuestra mente interpreta las situaciones, a menudo aprendidas a lo largo de la vida.
+          </p>
+          <p className="font-sans text-sm text-text leading-relaxed mb-5">
+            Todos las tenemos en mayor o menor medida. Identificarlas no significa que el pensamiento sea falso del todo, sino que puede estar distorsionado. Reconocerlas es el primer paso para poder relacionarnos con nuestros pensamientos de forma más flexible y menos automática.
+          </p>
+          <div className="flex flex-col gap-3">
+            {DISTORSIONES_INFO.map((d, i) => (
+              <div
+                key={i}
+                className="rounded-xl p-4"
+                style={{ background: 'var(--color-bg)', borderLeft: '3px solid var(--color-primary-light)' }}
+              >
+                <p className="font-sans text-sm font-semibold text-text mb-1">{d.nombre}</p>
+                <p className="font-sans text-xs text-text-muted leading-relaxed">{d.descripcion}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Pensamientos() {
   const [entries, setEntries] = useLocalStorage<PensamientoEntry[]>('santuario_reflexiones', [])
   const [step, setStep] = useState<Step>('input')
@@ -399,12 +480,11 @@ export default function Pensamientos() {
 
         {/* Step: Saved */}
         {step === 'saved' && (
-          <div className="text-center">
+          <div>
             <div
-              className="rounded-2xl p-8 mb-5"
+              className="rounded-2xl p-8 mb-5 text-center"
               style={{ background: 'var(--color-surface)', boxShadow: '0 2px 12px rgba(61,50,40,0.08)' }}
             >
-              <div className="text-4xl mb-4">✨</div>
               <h2 className="font-serif text-xl font-semibold text-text mb-2">Entrada guardada</h2>
               <p className="font-sans text-sm text-text-muted">
                 Has completado un ciclo de reestructuración cognitiva. Este proceso, practicado con regularidad,
@@ -420,9 +500,13 @@ export default function Pensamientos() {
                 </div>
               )}
             </div>
+
+            {/* Glosario de distorsiones */}
+            <DistorsionesCognitivas />
+
             <button
               onClick={handleReset}
-              className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90"
+              className="w-full mt-5 py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
               Examinar otro pensamiento
