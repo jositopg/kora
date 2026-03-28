@@ -145,12 +145,15 @@ export default function Dashboard() {
         style={{ background: 'linear-gradient(160deg, #fdf5f0 0%, #faf0eb 100%)', boxShadow: '0 2px 16px rgba(61,50,40,0.07)' }}
       >
         <div className="max-w-2xl mx-auto">
-          <div className="mb-4 flex justify-center">
+          <div className="mb-5 flex flex-col items-center gap-2">
             <svg viewBox="0 0 240 130" fill="none" xmlns="http://www.w3.org/2000/svg" width="200">
               <path d="M 22,95 L 22,43 A 28,28 0 0,1 78,43 L 78,95" stroke="#A0633A" strokeWidth="3.5" strokeLinecap="round"/>
               <line x1="12" y1="100" x2="88" y2="100" stroke="#A0633A" strokeWidth="3.5" strokeLinecap="round"/>
               <text x="106" y="82" fontFamily="'Manrope', sans-serif" fontSize="34" fontWeight="300" letterSpacing="10" fill="#111111">KORA</text>
             </svg>
+            <p className="font-serif italic text-base font-light tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
+              un lugar para estar
+            </p>
           </div>
           <p className="font-sans text-sm text-text-muted capitalize text-center">{dateStr}</p>
           <p className="font-sans text-sm text-text mt-2 text-center">
