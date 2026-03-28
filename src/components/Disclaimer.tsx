@@ -13,20 +13,15 @@ export default function Disclaimer() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12" style={{ background: 'var(--color-bg)' }}>
       <div className="max-w-md w-full text-center">
-        {/* Logo / Icon */}
-        <div className="flex justify-center mb-6">
-          <div
-            className="w-20 h-20 rounded-full flex items-center justify-center text-4xl"
-            style={{ background: 'var(--color-primary-container)', boxShadow: '0 4px 20px rgba(61,50,40,0.12)' }}
-          >
-            🌿
-          </div>
+        {/* Logo */}
+        <div className="flex justify-center mb-8">
+          <svg viewBox="0 0 240 130" fill="none" xmlns="http://www.w3.org/2000/svg" width="220">
+            <path d="M 22,95 L 22,43 A 28,28 0 0,1 78,43 L 78,95" stroke="#A0633A" strokeWidth="3.5" strokeLinecap="round"/>
+            <line x1="12" y1="100" x2="88" y2="100" stroke="#A0633A" strokeWidth="3.5" strokeLinecap="round"/>
+            <text x="106" y="82" fontFamily="'Manrope', sans-serif" fontSize="34" fontWeight="300" letterSpacing="10" fill="#111111">KORA</text>
+          </svg>
         </div>
 
-        {/* Title */}
-        <h1 className="text-3xl font-serif font-semibold text-text mb-2">
-          Santuario Digital
-        </h1>
         <p className="text-text-muted font-sans text-sm mb-8 tracking-wide uppercase">
           Herramientas de autoconocimiento
         </p>
