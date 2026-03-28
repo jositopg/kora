@@ -164,7 +164,7 @@ export default function Parcelas() {
       <div className="max-w-2xl mx-auto px-6 pt-8">
         <PageHeader
           title="Parcelas de la Vida"
-          subtitle="Visualiza cómo distribuyes tu energía vital"
+          subtitle="¿A qué dedicas tu tiempo?"
         />
 
         {/* Toggle parcelas */}

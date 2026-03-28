@@ -76,7 +76,7 @@ const modules: ModuleCard[] = [
   {
     icon: IconParcelas,
     title: 'Parcelas de la Vida',
-    description: 'Equilibra tu energía vital',
+    description: '¿A qué dedicas tu tiempo?',
     path: '/parcelas',
     color: '#b07068',
     bg: '#f0d8d0',
