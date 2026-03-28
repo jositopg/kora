@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
+import ModuleIntro from './ui/ModuleIntro'
 import type { ControlEntry, ControlVariable } from '../types'
 
 type Step = 'preocupacion' | 'validacion' | 'clasificar' | 'reflexion' | 'guardado'
@@ -171,6 +172,11 @@ export default function Control() {
         <PageHeader
           title="Círculos de Influencia"
           subtitle="Protege tu energía. Actúa donde importa."
+        />
+
+        <ModuleIntro
+          que="Un ejercicio visual para analizar una preocupación: la desglosas en partes concretas y clasificas cada una según si tienes control total, puedes influir parcialmente, o está completamente fuera de tu alcance."
+          para="Cuando nos preocupamos, solemos mezclar en la misma bolsa cosas que podemos cambiar con cosas que no. Esto genera ansiedad e inacción. Separar esas variables con claridad ayuda a dirigir tu energía donde sí puedes actuar, y a practicar la aceptación en lo que no depende de ti."
         />
 
         {/* Paso 1: Preocupación + variables */}

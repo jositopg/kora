@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
+import ModuleIntro from './ui/ModuleIntro'
 import type { NecesidadEntry } from '../types'
 
 const PRIORITY_OPTIONS: Array<{ value: 'Alta' | 'Media' | 'Baja'; color: string }> = [
@@ -96,6 +97,11 @@ export default function Necesidades() {
         <PageHeader
           title="Rastreo de Necesidades"
           subtitle="Observa tus necesidades día a día"
+        />
+
+        <ModuleIntro
+          que="Un registro diario para tomar conciencia de tus necesidades básicas: descanso, movimiento, conexión, tiempo propio, alimentación... Anotas si esa necesidad estuvo presente, qué prioridad le diste y si pudiste atenderla."
+          para="Muchas veces el malestar no viene de grandes problemas, sino de necesidades sistemáticamente ignoradas. Llevar este registro durante unos días te ayuda a detectar patrones: qué necesitas y qué te cuesta darte, para poder cuidarte de forma más consciente."
         />
 
         {/* Alert */}

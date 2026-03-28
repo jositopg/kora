@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
+import ModuleIntro from './ui/ModuleIntro'
 import type { IdentidadEntry, Parte } from '../types'
 
 type Step = 'partes' | 'peso' | 'complementarias' | 'integracion' | 'guardado'
@@ -127,6 +128,11 @@ export default function Identidad() {
         <PageHeader
           title="¿Qué te define?"
           subtitle="Todas tus partes tienen su lugar"
+        />
+
+        <ModuleIntro
+          que="Un ejercicio para explorar cómo te describes a ti mismo/a. Escribes los adjetivos o roles que sientes que te definen, les asignas un peso según cuánto espacio ocupan en tu vida, y reflexionas sobre cuándo y por qué aparece cada parte."
+          para="Solemos identificarnos con una versión muy rígida de nosotros mismos ('soy así'). Este ejercicio ayuda a ver que somos mucho más que cualquier etiqueta: que tenemos partes distintas que conviven, y que ninguna nos define por completo. Esa flexibilidad es la base de un autoconcepto más sano y compasivo."
         />
 
         {/* Paso 1: Añadir partes */}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
+import ModuleIntro from './ui/ModuleIntro'
 import type { ParcelasData, Parcela } from '../types'
 
 const DEFAULT_PARCELAS: Parcela[] = [
@@ -165,6 +166,11 @@ export default function Parcelas() {
         <PageHeader
           title="Parcelas de la Vida"
           subtitle="¿A qué dedicas tu tiempo?"
+        />
+
+        <ModuleIntro
+          que="Una herramienta visual para ver cómo distribuyes tu tiempo y energía entre las distintas áreas de tu vida: trabajo, relaciones, salud, ocio, etc."
+          para="Detectar desequilibrios entre lo que haces y lo que realmente importa. Ver de un vistazo qué áreas estás descuidando y cuáles están ocupando demasiado espacio, para poder tomar decisiones más conscientes."
         />
 
         {/* Toggle parcelas */}

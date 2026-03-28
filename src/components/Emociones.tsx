@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
+import ModuleIntro from './ui/ModuleIntro'
 import { EMOTIONS } from '../data/emotions'
 import type { TertiaryEmotion } from '../types'
 
@@ -52,6 +53,11 @@ export default function Emociones() {
         <PageHeader
           title="Rueda de Emociones"
           subtitle="Explora y nombra lo que sientes"
+        />
+
+        <ModuleIntro
+          que="Un mapa de emociones organizado en tres niveles: de lo más general (alegría, tristeza, miedo...) a lo más preciso (nostalgia, decepción, aprensión...). Vas eligiendo capas hasta dar con la emoción que mejor describe lo que sientes."
+          para="Poner nombre exacto a una emoción reduce su intensidad y te da más capacidad de gestionarla. Cuanto más amplio es tu vocabulario emocional, mejor puedes entender qué te está pasando y comunicarlo."
         />
 
         {/* Breadcrumb */}

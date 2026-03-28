@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
+import ModuleIntro from './ui/ModuleIntro'
 import type { PensamientoEntry } from '../types'
 
 interface Question {
@@ -131,6 +132,11 @@ export default function Pensamientos() {
         <PageHeader
           title="Laboratorio de Pensamientos"
           subtitle="Examina y transforma los pensamientos que te limitan"
+        />
+
+        <ModuleIntro
+          que="Un cuestionario guiado para examinar un pensamiento que te genera malestar. A través de preguntas sencillas, explorarás si ese pensamiento es tan cierto y útil como parece, y terminarás construyendo una perspectiva alternativa más equilibrada."
+          para="Los pensamientos automáticos negativos influyen directamente en cómo te sientes. Aprender a cuestionarlos no es negar la realidad, sino ver la situación con más matices. Con práctica, este proceso se vuelve más natural e interno."
         />
 
         {/* Step: Input */}
