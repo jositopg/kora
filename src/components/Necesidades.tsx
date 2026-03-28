@@ -235,7 +235,7 @@ export default function Necesidades() {
 
               {/* Q4 */}
               <div>
-                <p className="font-sans text-sm font-semibold text-text mb-2">¿Se satisfizo?</p>
+                <p className="font-sans text-sm font-semibold text-text mb-2">¿Atendiste a esa necesidad?</p>
                 <div className="flex gap-2 mb-3">
                   {([true, false] as const).map(val => (
                     <button
@@ -257,7 +257,7 @@ export default function Necesidades() {
                   value={detalle}
                   onChange={e => setDetalle(e.target.value)}
                   rows={2}
-                  placeholder={satisfecha ? '¿De qué manera se satisfizo?' : '¿Por qué no se satisfizo?'}
+                  placeholder={satisfecha ? '¿De qué manera la atendiste?' : '¿Por qué no pudiste atenderla?'}
                   className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
                   style={{
                     background: 'var(--color-bg)',
