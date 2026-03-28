@@ -137,6 +137,13 @@ export default function Pensamientos() {
         <ModuleIntro
           que="Un cuestionario guiado para examinar un pensamiento que te genera malestar. A través de preguntas sencillas, explorarás si ese pensamiento es tan cierto y útil como parece, y terminarás construyendo una perspectiva alternativa más equilibrada."
           para="Los pensamientos automáticos negativos influyen directamente en cómo te sientes. Aprender a cuestionarlos no es negar la realidad, sino ver la situación con más matices. Con práctica, este proceso se vuelve más natural e interno."
+          pasos={[
+            'Escribe el pensamiento que te está generando malestar, tal y como aparece en tu cabeza.',
+            'Responde las preguntas de examen con Sí, No o No sé. No hay respuestas correctas, solo honestas.',
+            'El sistema identificará qué distorsiones cognitivas pueden estar presentes en ese pensamiento.',
+            'Escribe un pensamiento alternativo más equilibrado, que tenga en cuenta todo lo que has explorado.',
+            'Guarda el registro. Puedes consultarlo más adelante para ver cómo evolucionan tus patrones.',
+          ]}
         />
 
         {/* Step: Input */}

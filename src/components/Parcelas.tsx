@@ -171,6 +171,13 @@ export default function Parcelas() {
         <ModuleIntro
           que="Una herramienta visual para ver cómo distribuyes tu tiempo y energía entre las distintas áreas de tu vida: trabajo, relaciones, salud, ocio, etc."
           para="Detectar desequilibrios entre lo que haces y lo que realmente importa. Ver de un vistazo qué áreas estás descuidando y cuáles están ocupando demasiado espacio, para poder tomar decisiones más conscientes."
+          pasos={[
+            'Selecciona las áreas de vida que quieres incluir clicando sobre cada una. Puedes activar o desactivar las que no te sean relevantes.',
+            'Asigna un porcentaje a cada área usando el control deslizante. A medida que ajustas una, las demás se reequilibran automáticamente.',
+            'Observa la distribución actual en el gráfico circular: eso refleja cómo estás viviendo ahora mismo.',
+            'Haz lo mismo con la distribución ideal: ¿cómo te gustaría repartir tu tiempo y energía?',
+            'Compara ambas distribuciones y responde las preguntas de reflexión. Ahí está el trabajo real.',
+          ]}
         />
 
         {/* Toggle parcelas */}

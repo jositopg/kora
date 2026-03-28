@@ -58,6 +58,12 @@ export default function Emociones() {
         <ModuleIntro
           que="Un mapa de emociones organizado en tres niveles: de lo más general (alegría, tristeza, miedo...) a lo más preciso (nostalgia, decepción, aprensión...). Vas eligiendo capas hasta dar con la emoción que mejor describe lo que sientes."
           para="Poner nombre exacto a una emoción reduce su intensidad y te da más capacidad de gestionarla. Cuanto más amplio es tu vocabulario emocional, mejor puedes entender qué te está pasando y comunicarlo."
+          pasos={[
+            'Elige la emoción primaria que más se acerca a lo que sientes ahora mismo: alegría, tristeza, miedo, ira, sorpresa o asco.',
+            'Dentro de ella, selecciona la emoción secundaria que la matiza mejor.',
+            'Por último, elige la emoción terciaria más específica. Verás su definición justo debajo para ayudarte a decidir.',
+            'Cuando hayas encontrado la que te representa, confírmala. Quedará registrada con la fecha de hoy.',
+          ]}
         />
 
         {/* Breadcrumb */}

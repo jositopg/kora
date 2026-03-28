@@ -102,6 +102,13 @@ export default function Necesidades() {
         <ModuleIntro
           que="Un registro diario para tomar conciencia de tus necesidades básicas: descanso, movimiento, conexión, tiempo propio, alimentación... Anotas si esa necesidad estuvo presente, qué prioridad le diste y si pudiste atenderla."
           para="Muchas veces el malestar no viene de grandes problemas, sino de necesidades sistemáticamente ignoradas. Llevar este registro durante unos días te ayuda a detectar patrones: qué necesitas y qué te cuesta darte, para poder cuidarte de forma más consciente."
+          pasos={[
+            'Escribe una necesidad que tengas presente hoy o que hayas notado durante el día.',
+            'Indica si esa necesidad estuvo presente: ¿la sentiste, la reconociste?',
+            'Señala qué prioridad le diste: alta, media o baja.',
+            '¿Pudiste atender a esa necesidad? Responde y añade cualquier detalle o reflexión que quieras guardar.',
+            'Repite el proceso con tantas necesidades como quieras. Con el tiempo, el historial te mostrará qué patrones se repiten.',
+          ]}
         />
 
         {/* Alert */}

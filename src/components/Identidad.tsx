@@ -133,6 +133,13 @@ export default function Identidad() {
         <ModuleIntro
           que="Un ejercicio para explorar cómo te describes a ti mismo/a. Escribes los adjetivos o roles que sientes que te definen, les asignas un peso según cuánto espacio ocupan en tu vida, y reflexionas sobre cuándo y por qué aparece cada parte."
           para="Solemos identificarnos con una versión muy rígida de nosotros mismos ('soy así'). Este ejercicio ayuda a ver que somos mucho más que cualquier etiqueta: que tenemos partes distintas que conviven, y que ninguna nos define por completo. Esa flexibilidad es la base de un autoconcepto más sano y compasivo."
+          pasos={[
+            'Escribe todos los adjetivos, roles o etiquetas con las que te describes: responsable, ansiosa, madre, perfeccionista... Lo que sea que sientas que te define.',
+            'Asigna a cada parte un peso del 1 al 10 según cuánto espacio ocupa en tu vida ahora mismo.',
+            'Para cada parte, anota en qué situaciones aparece con más fuerza.',
+            'Observa el mapa completo: ¿hay partes que ocupan demasiado espacio? ¿Hay partes que apenas aparecen y te gustaría potenciar?',
+            'Guarda el registro y reflexiona. Puedes repetir el ejercicio en otro momento y comparar cómo ha cambiado tu autoconcepto.',
+          ]}
         />
 
         {/* Paso 1: Añadir partes */}

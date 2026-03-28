@@ -177,6 +177,13 @@ export default function Control() {
         <ModuleIntro
           que="Un ejercicio visual para analizar una preocupación: la desglosas en partes concretas y clasificas cada una según si tienes control total, puedes influir parcialmente, o está completamente fuera de tu alcance."
           para="Cuando nos preocupamos, solemos mezclar en la misma bolsa cosas que podemos cambiar con cosas que no. Esto genera ansiedad e inacción. Separar esas variables con claridad ayuda a dirigir tu energía donde sí puedes actuar, y a practicar la aceptación en lo que no depende de ti."
+          pasos={[
+            'Escribe qué te quita la paz hoy: la situación o preocupación que tienes más presente.',
+            'Desglosa esa preocupación en aspectos o variables concretas. Añádelas una a una.',
+            'Lee el mensaje de pausa que aparecerá antes de continuar. Es parte del ejercicio.',
+            'Clasifica cada variable en su círculo: ¿tienes control total, puedes influir en ella, o está completamente fuera de tu alcance?',
+            'Responde las preguntas de cierre adaptadas a cada zona: en lo controlable, hacia la acción; en lo incontrolable, hacia la aceptación.',
+          ]}
         />
 
         {/* Paso 1: Preocupación + variables */}
