@@ -151,7 +151,7 @@ export default function Dashboard() {
               <line x1="12" y1="100" x2="88" y2="100" stroke="#A0633A" strokeWidth="3.5" strokeLinecap="round"/>
               <text x="106" y="82" fontFamily="'Manrope', sans-serif" fontSize="34" fontWeight="300" letterSpacing="10" fill="#111111">KORA</text>
             </svg>
-            <p className="font-serif italic text-base font-light tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
+            <p style={{ fontFamily: "'Caveat', cursive", fontSize: '1.25rem', color: 'var(--color-text-muted)', letterSpacing: '0.02em' }}>
               un lugar para estar
             </p>
           </div>
@@ -200,6 +200,17 @@ export default function Dashboard() {
         <p className="mt-10 text-center font-sans text-xs text-text-muted">
           Todo tu progreso se guarda localmente en este dispositivo
         </p>
+
+        <div className="mt-10 flex flex-col items-center gap-2 pb-4">
+          <p className="font-sans text-xs text-text-muted" style={{ opacity: 0.5 }}>un espacio creado por</p>
+          <a href="https://andreaalvarezpsicologa.es" target="_blank" rel="noopener noreferrer">
+            <img
+              src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop,q=95/YD0wpqNyGefW9QxW/cropped-copia-de-post-de-instagram-belleza-y-autoestima-minimalista-verde-2-photoroom.png-photoroom-AGBzNWblNyF7q3By.png"
+              alt="Andrea Álvarez Psicóloga"
+              style={{ height: '52px', width: 'auto', opacity: 0.75 }}
+            />
+          </a>
+        </div>
       </main>
     </div>
   )
