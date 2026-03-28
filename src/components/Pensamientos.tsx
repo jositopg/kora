@@ -399,6 +399,8 @@ export default function Pensamientos() {
               <p className="font-sans text-sm text-text italic">"{pensamiento}"</p>
             </div>
 
+            <DistorsionesCognitivas />
+
             {detectedDistortions.length === 0 ? (
               <div
                 className="rounded-2xl p-5 mb-5"
@@ -500,9 +502,6 @@ export default function Pensamientos() {
                 </div>
               )}
             </div>
-
-            {/* Glosario de distorsiones */}
-            <DistorsionesCognitivas />
 
             <button
               onClick={handleReset}
