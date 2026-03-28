@@ -13,9 +13,11 @@ interface ModuleCard {
 // Center (12,12), r=9 → top:(12,3) 120°:(19.79,16.5) 240°:(4.21,16.5)
 const IconParcelas = (color: string) => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <path d="M12 12 L12 3 A9 9 0 0 1 19.79 16.5 Z" fill={color + '35'} stroke={color} strokeWidth="1.4" strokeLinejoin="round"/>
-    <path d="M12 12 L19.79 16.5 A9 9 0 0 1 4.21 16.5 Z" fill={color + '22'} stroke={color} strokeWidth="1.4" strokeLinejoin="round"/>
-    <path d="M12 12 L4.21 16.5 A9 9 0 0 1 12 3 Z" fill={color + '18'} stroke={color} strokeWidth="1.4" strokeLinejoin="round"/>
+    <g transform="translate(0, 2.25)">
+      <path d="M12 12 L12 3 A9 9 0 0 1 19.79 16.5 Z" fill={color + '35'} stroke={color} strokeWidth="1.4" strokeLinejoin="round"/>
+      <path d="M12 12 L19.79 16.5 A9 9 0 0 1 4.21 16.5 Z" fill={color + '22'} stroke={color} strokeWidth="1.4" strokeLinejoin="round"/>
+      <path d="M12 12 L4.21 16.5 A9 9 0 0 1 12 3 Z" fill={color + '18'} stroke={color} strokeWidth="1.4" strokeLinejoin="round"/>
+    </g>
   </svg>
 )
 
