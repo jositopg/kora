@@ -7,32 +7,80 @@ import type { IdentidadEntry, Parte } from '../types'
 
 type Step = 'partes' | 'peso' | 'complementarias' | 'integracion' | 'guardado'
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('es-ES', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
-}
+const PARTE_COLORS = [
+  '#b07068', '#9e7850', '#c4956a', '#8b7355', '#a87070',
+  '#b06040', '#7a6b5a', '#c49a80', '#9e8060', '#a06858',
+]
 
-function PesoVisual({ peso }: { peso: number }) {
+function IdentidadPieChart({ partes }: { partes: Parte[] }) {
+  const cx = 110
+  const cy = 110
+  const r = 95
+
+  const total = partes.reduce((s, p) => s + p.peso, 0)
+  if (total === 0 || partes.length === 0) return null
+
+  let cumAngle = -Math.PI / 2
+  const slices = partes.map((p, i) => {
+    const angle = (p.peso / total) * 2 * Math.PI
+    const startAngle = cumAngle
+    cumAngle += angle
+    const endAngle = cumAngle
+    const x1 = cx + r * Math.cos(startAngle)
+    const y1 = cy + r * Math.sin(startAngle)
+    const x2 = cx + r * Math.cos(endAngle)
+    const y2 = cy + r * Math.sin(endAngle)
+    const largeArc = angle > Math.PI ? 1 : 0
+    const path = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`
+    // label position at midpoint angle
+    const midAngle = startAngle + angle / 2
+    const labelR = r * 0.65
+    const lx = cx + labelR * Math.cos(midAngle)
+    const ly = cy + labelR * Math.sin(midAngle)
+    return { ...p, path, color: PARTE_COLORS[i % PARTE_COLORS.length], lx, ly, angle }
+  })
+
   return (
-    <div className="flex items-center gap-1.5">
-      {Array.from({ length: 10 }).map((_, i) => (
-        <div
-          key={i}
-          className="rounded-full transition-all"
-          style={{
-            width: 8,
-            height: 8,
-            background: i < peso ? '#A0633A' : 'var(--color-border)',
-            opacity: i < peso ? 1 - i * 0.05 : 1,
-          }}
-        />
-      ))}
-      <span className="font-sans text-xs text-text-muted ml-1">{peso}/10</span>
+    <div className="flex flex-col items-center gap-4">
+      <svg width="220" height="220" viewBox="0 0 220 220">
+        {slices.map((s, i) => (
+          <g key={i}>
+            <path d={s.path} fill={s.color} stroke="var(--color-bg)" strokeWidth="2.5" />
+            {s.angle > 0.3 && (
+              <text
+                x={s.lx}
+                y={s.ly}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontSize="10"
+                fontWeight="600"
+                fill="#fff"
+                fontFamily="Manrope, sans-serif"
+                style={{ pointerEvents: 'none' }}
+              >
+                {s.etiqueta.length > 10 ? s.etiqueta.slice(0, 9) + '…' : s.etiqueta}
+              </text>
+            )}
+          </g>
+        ))}
+      </svg>
+      <div className="flex flex-wrap gap-x-3 gap-y-1.5 justify-center max-w-xs">
+        {slices.map((s, i) => (
+          <div key={i} className="flex items-center gap-1.5">
+            <span className="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: s.color }} />
+            <span className="font-sans text-xs text-text-muted">{s.etiqueta}</span>
+            <span className="font-sans text-xs font-semibold" style={{ color: s.color }}>{s.peso}</span>
+          </div>
+        ))}
+      </div>
     </div>
   )
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('es-ES', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  })
 }
 
 export default function Identidad() {
@@ -82,24 +130,13 @@ export default function Identidad() {
 
   const updateComplementaria = (id: string, etiqueta: string, situacion: string) => {
     setPartes(prev =>
-      prev.map(p =>
-        p.id === id
-          ? { ...p, complementaria: { etiqueta, situacion } }
-          : p
-      )
+      prev.map(p => p.id === id ? { ...p, complementaria: { etiqueta, situacion } } : p)
     )
   }
 
   const removeParte = (id: string) => {
     setPartes(prev => prev.filter(p => p.id !== id))
   }
-
-  const todasLasPartes = [
-    ...partes.map(p => ({ etiqueta: p.etiqueta, peso: p.peso, situacion: p.situacion, esOriginal: true })),
-    ...partes
-      .filter(p => p.complementaria?.etiqueta)
-      .map(p => ({ etiqueta: p.complementaria!.etiqueta, peso: Math.max(1, 10 - p.peso), situacion: p.complementaria!.situacion, esOriginal: false })),
-  ]
 
   const handleSave = () => {
     const entry: IdentidadEntry = {
@@ -177,11 +214,11 @@ export default function Identidad() {
 
               {partes.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {partes.map(p => (
+                  {partes.map((p, i) => (
                     <div
                       key={p.id}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-sans text-sm"
-                      style={{ background: '#A0633A18', border: '1.5px solid #A0633A44', color: '#A0633A' }}
+                      style={{ background: `${PARTE_COLORS[i % PARTE_COLORS.length]}22`, border: `1.5px solid ${PARTE_COLORS[i % PARTE_COLORS.length]}55`, color: PARTE_COLORS[i % PARTE_COLORS.length] }}
                     >
                       <span>{p.etiqueta}</span>
                       <button
@@ -227,11 +264,11 @@ export default function Identidad() {
                     >
                       <p className="font-sans text-xs text-text-muted mb-2">{formatDate(entry.createdAt)}</p>
                       <div className="flex flex-wrap gap-1.5">
-                        {entry.partes.map(p => (
+                        {entry.partes.map((p, i) => (
                           <span
                             key={p.id}
                             className="px-2.5 py-1 rounded-full font-sans text-xs"
-                            style={{ background: '#A0633A18', color: '#A0633A' }}
+                            style={{ background: `${PARTE_COLORS[i % PARTE_COLORS.length]}22`, color: PARTE_COLORS[i % PARTE_COLORS.length] }}
                           >
                             {p.etiqueta}
                           </span>
@@ -240,29 +277,8 @@ export default function Identidad() {
                     </button>
                     {expandedId === entry.id && (
                       <div className="px-4 pb-4 border-t" style={{ borderColor: 'var(--color-border)' }}>
-                        <div className="mt-3 flex flex-col gap-3">
-                          {entry.partes.map(p => (
-                            <div key={p.id}>
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="font-sans text-sm font-semibold text-text">{p.etiqueta}</span>
-                                <PesoVisual peso={p.peso} />
-                              </div>
-                              {p.situacion && (
-                                <p className="font-sans text-xs text-text-muted">{p.situacion}</p>
-                              )}
-                              {p.complementaria?.etiqueta && (
-                                <div
-                                  className="mt-2 rounded-lg px-3 py-2"
-                                  style={{ background: 'var(--color-surface-low)' }}
-                                >
-                                  <p className="font-sans text-xs text-text-muted">
-                                    También: <strong className="text-text">{p.complementaria.etiqueta}</strong>
-                                    {p.complementaria.situacion && ` — ${p.complementaria.situacion}`}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                        <div className="flex justify-center mt-4 mb-2">
+                          <IdentidadPieChart partes={entry.partes} />
                         </div>
                       </div>
                     )}
@@ -277,28 +293,36 @@ export default function Identidad() {
         {step === 'peso' && (
           <div>
             <p className="font-sans text-sm text-text-muted mb-5 leading-relaxed">
-              Para cada parte, indica cuánto espacio ocupa en tu vida (peso) y en qué situaciones o momentos aparece.
+              Ajusta el peso de cada parte y ve cómo se distribuyen en el gráfico. Luego anota en qué situaciones aparece cada una.
             </p>
 
+            {/* Gráfico en tiempo real */}
+            <div className="rounded-2xl p-5 mb-5 flex justify-center" style={cardStyle}>
+              <IdentidadPieChart partes={partes} />
+            </div>
+
             <div className="flex flex-col gap-4 mb-6">
-              {partes.map(p => (
+              {partes.map((p, i) => (
                 <div key={p.id} className="rounded-2xl p-5" style={cardStyle}>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span
+                      className="w-3 h-3 rounded-full flex-shrink-0"
+                      style={{ background: PARTE_COLORS[i % PARTE_COLORS.length] }}
+                    />
                     <span
                       className="px-3 py-1 rounded-full font-sans text-sm font-semibold"
-                      style={{ background: '#A0633A18', color: '#A0633A' }}
+                      style={{ background: `${PARTE_COLORS[i % PARTE_COLORS.length]}22`, color: PARTE_COLORS[i % PARTE_COLORS.length] }}
                     >
                       {p.etiqueta}
                     </span>
                   </div>
 
-                  {/* Slider de peso */}
                   <div className="mb-4">
                     <div className="flex items-center justify-between mb-2">
                       <label className="font-sans text-xs font-semibold text-text-muted uppercase tracking-wide">
-                        ¿Cuánto espacio ocupa esta parte en ti?
+                        ¿Cuánto espacio ocupa en ti?
                       </label>
-                      <span className="font-sans text-xs font-bold" style={{ color: '#A0633A' }}>
+                      <span className="font-sans text-xs font-bold" style={{ color: PARTE_COLORS[i % PARTE_COLORS.length] }}>
                         {p.peso}/10
                       </span>
                     </div>
@@ -309,15 +333,13 @@ export default function Identidad() {
                       value={p.peso}
                       onChange={e => updateParte(p.id, { peso: Number(e.target.value) })}
                       className="w-full"
-                      style={{ accentColor: '#A0633A' }}
+                      style={{ accentColor: PARTE_COLORS[i % PARTE_COLORS.length] }}
                     />
-                    <PesoVisual peso={p.peso} />
                   </div>
 
-                  {/* Situación */}
                   <div>
                     <label className="block font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">
-                      ¿En qué momentos o situaciones aparece esta parte?
+                      ¿En qué momentos o situaciones aparece?
                     </label>
                     <textarea
                       value={p.situacion}
@@ -348,30 +370,23 @@ export default function Identidad() {
         {/* Paso 3: Partes complementarias */}
         {step === 'complementarias' && parteActual && (
           <div>
-            {/* Progreso */}
             <div className="flex gap-1.5 mb-6">
               {partes.map((_, i) => (
                 <div
                   key={i}
                   className="flex-1 h-1.5 rounded-full transition-all"
-                  style={{
-                    background: i <= complementariaIdx ? '#A0633A' : 'var(--color-border)',
-                  }}
+                  style={{ background: i <= complementariaIdx ? 'var(--color-primary)' : 'var(--color-border)' }}
                 />
               ))}
             </div>
 
-            <div
-              className="rounded-2xl p-4 mb-5"
-              style={{ background: 'var(--color-primary-container)' }}
-            >
+            <div className="rounded-2xl p-4 mb-5" style={{ background: 'var(--color-primary-container)' }}>
               <p className="font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-1">
                 Explorando tu parte
               </p>
               <p className="font-serif text-lg font-semibold text-text mb-1">"{parteActual.etiqueta}"</p>
-              <PesoVisual peso={parteActual.peso} />
               {parteActual.situacion && (
-                <p className="font-sans text-xs text-text-muted mt-2">
+                <p className="font-sans text-xs text-text-muted mt-1">
                   Aparece cuando: {parteActual.situacion}
                 </p>
               )}
@@ -386,7 +401,7 @@ export default function Identidad() {
 
               <p className="font-sans text-sm font-semibold text-text mb-4">
                 ¿Puedes identificar una parte tuya que parece opuesta a{' '}
-                <span style={{ color: '#A0633A' }}>"{parteActual.etiqueta}"</span>,
+                <span style={{ color: 'var(--color-primary)' }}>"{parteActual.etiqueta}"</span>,
                 pero que también aparece en tu vida?
               </p>
 
@@ -398,11 +413,7 @@ export default function Identidad() {
                   type="text"
                   value={parteActual.complementaria?.etiqueta ?? ''}
                   onChange={e =>
-                    updateComplementaria(
-                      parteActual.id,
-                      e.target.value,
-                      parteActual.complementaria?.situacion ?? ''
-                    )
+                    updateComplementaria(parteActual.id, e.target.value, parteActual.complementaria?.situacion ?? '')
                   }
                   placeholder="Ej: tranquila, valiente, despreocupada..."
                   className="w-full px-4 py-2.5 rounded-xl font-sans text-sm outline-none"
@@ -420,11 +431,7 @@ export default function Identidad() {
                   <textarea
                     value={parteActual.complementaria?.situacion ?? ''}
                     onChange={e =>
-                      updateComplementaria(
-                        parteActual.id,
-                        parteActual.complementaria?.etiqueta ?? '',
-                        e.target.value
-                      )
+                      updateComplementaria(parteActual.id, parteActual.complementaria?.etiqueta ?? '', e.target.value)
                     }
                     rows={2}
                     placeholder="Cuando estoy con personas de confianza, cuando hago algo que disfruto..."
@@ -437,14 +444,13 @@ export default function Identidad() {
               )}
             </div>
 
-            {/* Visualización de complementariedad */}
             {parteActual.complementaria?.etiqueta && (
               <div className="flex items-center gap-3 mb-5">
                 <div
                   className="flex-1 rounded-2xl p-3 text-center"
-                  style={{ background: '#A0633A18', border: '1.5px solid #A0633A44' }}
+                  style={{ background: `${PARTE_COLORS[complementariaIdx % PARTE_COLORS.length]}22`, border: `1.5px solid ${PARTE_COLORS[complementariaIdx % PARTE_COLORS.length]}44` }}
                 >
-                  <p className="font-sans text-sm font-semibold" style={{ color: '#A0633A' }}>
+                  <p className="font-sans text-sm font-semibold" style={{ color: PARTE_COLORS[complementariaIdx % PARTE_COLORS.length] }}>
                     {parteActual.etiqueta}
                   </p>
                 </div>
@@ -460,29 +466,21 @@ export default function Identidad() {
               </div>
             )}
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  if (complementariaIdx < partes.length - 1) {
-                    setComplementariaIdx(i => i + 1)
-                  } else {
-                    setStep('integracion')
-                  }
-                }}
-                className="flex-1 py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90"
-                style={{ background: 'var(--color-primary)', color: '#fff' }}
-              >
-                {complementariaIdx < partes.length - 1 ? 'Siguiente parte →' : 'Ver mi mapa completo →'}
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                if (complementariaIdx < partes.length - 1) setComplementariaIdx(i => i + 1)
+                else setStep('integracion')
+              }}
+              className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90"
+              style={{ background: 'var(--color-primary)', color: '#fff' }}
+            >
+              {complementariaIdx < partes.length - 1 ? 'Siguiente parte →' : 'Ver mi mapa completo →'}
+            </button>
 
             <button
               onClick={() => {
-                if (complementariaIdx < partes.length - 1) {
-                  setComplementariaIdx(i => i + 1)
-                } else {
-                  setStep('integracion')
-                }
+                if (complementariaIdx < partes.length - 1) setComplementariaIdx(i => i + 1)
+                else setStep('integracion')
               }}
               className="w-full mt-2 py-3 rounded-full font-sans text-sm transition-colors"
               style={{ background: 'transparent', color: 'var(--color-text-muted)' }}
@@ -495,81 +493,48 @@ export default function Identidad() {
         {/* Paso 4: Integración */}
         {step === 'integracion' && (
           <div>
-            <div
-              className="rounded-2xl p-5 mb-5 text-center"
-              style={cardStyle}
-            >
-              <p className="font-serif text-lg font-semibold text-text mb-2">
-                Este eres tú
-              </p>
+            <div className="rounded-2xl p-5 mb-5 text-center" style={cardStyle}>
+              <p className="font-serif text-lg font-semibold text-text mb-2">Este eres tú</p>
               <p className="font-sans text-sm text-text-muted leading-relaxed">
                 Todas estas partes coexisten en ti. No se excluyen — se complementan.
                 Ninguna te define por completo. Todas tienen su espacio y su momento.
               </p>
             </div>
 
-            {/* Partes originales con sus pesos y complementarias */}
-            <div className="flex flex-col gap-4 mb-6">
-              {partes.map(p => (
+            {/* Gráfico principal */}
+            <div className="rounded-2xl p-6 mb-5 flex justify-center" style={cardStyle}>
+              <IdentidadPieChart partes={partes} />
+            </div>
+
+            {/* Detalle de cada parte */}
+            <div className="flex flex-col gap-3 mb-6">
+              {partes.map((p, i) => (
                 <div key={p.id} className="rounded-2xl overflow-hidden" style={cardStyle}>
-                  <div className="p-4" style={{ borderLeft: '4px solid #A0633A' }}>
-                    <div className="flex items-center justify-between mb-2">
+                  <div className="p-4" style={{ borderLeft: `4px solid ${PARTE_COLORS[i % PARTE_COLORS.length]}` }}>
+                    <div className="flex items-center justify-between mb-1">
                       <span className="font-sans text-sm font-semibold text-text">{p.etiqueta}</span>
-                      <PesoVisual peso={p.peso} />
+                      <span className="font-sans text-xs font-bold" style={{ color: PARTE_COLORS[i % PARTE_COLORS.length] }}>
+                        {p.peso}/10
+                      </span>
                     </div>
                     {p.situacion && (
-                      <p className="font-sans text-xs text-text-muted">
-                        Aparece cuando: {p.situacion}
-                      </p>
+                      <p className="font-sans text-xs text-text-muted">Aparece cuando: {p.situacion}</p>
                     )}
                   </div>
-
                   {p.complementaria?.etiqueta && (
-                    <div
-                      className="px-4 py-3"
-                      style={{ background: 'var(--color-surface-low)', borderLeft: '4px solid var(--color-border)' }}
-                    >
-                      <div className="flex items-center gap-2 mb-1">
+                    <div className="px-4 py-3" style={{ background: 'var(--color-surface-low)', borderLeft: '4px solid var(--color-border)' }}>
+                      <div className="flex items-center gap-2 mb-0.5">
                         <span className="font-sans text-xs text-text-muted">También:</span>
                         <span className="font-sans text-sm font-semibold text-text">{p.complementaria.etiqueta}</span>
                       </div>
                       {p.complementaria.situacion && (
-                        <p className="font-sans text-xs text-text-muted">
-                          Aparece cuando: {p.complementaria.situacion}
-                        </p>
+                        <p className="font-sans text-xs text-text-muted">Aparece cuando: {p.complementaria.situacion}</p>
                       )}
                     </div>
                   )}
                 </div>
               ))}
             </div>
-
-            {/* Nube de partes */}
-            {todasLasPartes.length > 0 && (
-              <div
-                className="rounded-2xl p-5 mb-5"
-                style={{ background: 'var(--color-primary-container)' }}
-              >
-                <p className="font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-3">
-                  Todas tus partes
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {todasLasPartes.map((p, i) => (
-                    <span
-                      key={i}
-                      className="px-3 py-1.5 rounded-full font-sans text-sm font-medium transition-all"
-                      style={{
-                        background: p.esOriginal ? '#A0633A' : 'var(--color-surface)',
-                        color: p.esOriginal ? '#fff' : 'var(--color-text)',
-                        fontSize: `${0.7 + p.peso * 0.04}rem`,
-                      }}
-                    >
-                      {p.etiqueta}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
 
             <button
               onClick={handleSave}
@@ -585,28 +550,11 @@ export default function Identidad() {
         {step === 'guardado' && (
           <div className="text-center">
             <div className="rounded-2xl p-8 mb-5" style={cardStyle}>
-              <div className="text-4xl mb-4">🌿</div>
-              <h2 className="font-serif text-xl font-semibold text-text mb-3">
-                Mapa guardado
-              </h2>
-              <p className="font-sans text-sm text-text-muted leading-relaxed mb-5">
-                Reconocer tu multiplicidad es un acto de honestidad y compasión.
-                Eres todo esto, y más.
+              <h2 className="font-serif text-xl font-semibold text-text mb-2">Mapa guardado</h2>
+              <p className="font-sans text-sm text-text-muted leading-relaxed mb-6">
+                Reconocer tu multiplicidad es un acto de honestidad y compasión. Eres todo esto, y más.
               </p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {todasLasPartes.map((p, i) => (
-                  <span
-                    key={i}
-                    className="px-3 py-1.5 rounded-full font-sans text-sm"
-                    style={{
-                      background: p.esOriginal ? '#A0633A' : 'var(--color-surface-low)',
-                      color: p.esOriginal ? '#fff' : 'var(--color-text-muted)',
-                    }}
-                  >
-                    {p.etiqueta}
-                  </span>
-                ))}
-              </div>
+              <IdentidadPieChart partes={partes} />
             </div>
             <button
               onClick={handleReset}
@@ -617,6 +565,7 @@ export default function Identidad() {
             </button>
           </div>
         )}
+
         <ProfesionalLink modulo="identidad" />
       </div>
     </div>
