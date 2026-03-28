@@ -176,18 +176,9 @@ export default function Dashboard() {
           <p className="font-sans text-sm text-text leading-relaxed mb-5">
             Piensa en este espacio como un <strong>diario personal de autoconocimiento</strong>: todo lo que reflexiones aquí queda guardado en tu dispositivo, solo para ti. Puedes volver cuando quieras a revisar lo que escribiste, ver cómo has evolucionado o simplemente releerlo.
           </p>
-          <div className="flex items-center gap-3 pt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
-            <div
-              className="rounded-full flex-shrink-0 flex items-center justify-center"
-              style={{ width: '44px', height: '44px', background: 'var(--color-primary-container)' }}
-            >
-              <span className="font-sans text-sm font-semibold" style={{ color: 'var(--color-primary)' }}>AA</span>
-            </div>
-            <div>
-              <p className="font-sans text-sm font-semibold text-text">Andrea Álvarez</p>
-              <p className="font-sans text-xs text-text-muted">Psicóloga</p>
-            </div>
-          </div>
+          <p className="font-sans text-xs text-text-muted pt-3 text-right" style={{ borderTop: '1px solid var(--color-border)', opacity: 0.7 }}>
+            — Andrea Álvarez, psicóloga
+          </p>
         </div>
 
         <p className="font-sans text-xs font-semibold uppercase tracking-wide text-text-muted mb-4">
