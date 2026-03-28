@@ -156,7 +156,7 @@ export default function Identidad() {
     setShowHistory(false)
   }
 
-  const canAdvanceFromPeso = partes.every(p => p.situacion.trim().length > 0)
+  const canAdvanceFromPeso = true
   const parteActual = partes[complementariaIdx]
 
   return (
@@ -338,14 +338,15 @@ export default function Identidad() {
                   </div>
 
                   <div>
-                    <label className="block font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">
+                    <label className="block font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-1">
                       ¿En qué momentos o situaciones aparece?
                     </label>
+                    <p className="font-sans text-xs text-text-muted mb-2">Si no sabes o no se te ocurre nada ahora, puedes dejarlo en blanco y continuar.</p>
                     <textarea
                       value={p.situacion}
                       onChange={e => updateParte(p.id, { situacion: e.target.value })}
                       rows={2}
-                      placeholder="Cuando tengo que tomar decisiones, cuando estoy con desconocidos..."
+                      placeholder="Cuando tengo que tomar decisiones, cuando estoy con desconocidos... (opcional)"
                       className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
                       style={textareaStyle}
                       onFocus={handleFocus}
@@ -358,8 +359,7 @@ export default function Identidad() {
 
             <button
               onClick={() => { setComplementariaIdx(0); setStep('complementarias') }}
-              disabled={!canAdvanceFromPeso}
-              className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
               Descubrir partes complementarias →
