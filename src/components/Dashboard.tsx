@@ -164,6 +164,36 @@ export default function Dashboard() {
 
       {/* Module grid */}
       <main className="px-6 py-8 max-w-2xl mx-auto">
+
+        {/* Mensaje de Andrea + explicación de diario */}
+        <div
+          className="rounded-2xl p-6 mb-8"
+          style={{ background: 'rgba(255,248,244,0.9)', boxShadow: '0 2px 14px rgba(61,50,40,0.08)', border: '1px solid var(--color-border)' }}
+        >
+          <p className="font-sans text-sm text-text leading-relaxed mb-4">
+            Estas herramientas forman parte de mi trabajo diario en consulta. Las he adaptado para que puedas usarlas de forma autónoma, en el momento en que las necesites, y a tu ritmo.
+          </p>
+          <p className="font-sans text-sm text-text leading-relaxed mb-5">
+            Piensa en este espacio como un <strong>diario personal de autoconocimiento</strong>: todo lo que reflexiones aquí queda guardado en tu dispositivo, solo para ti. Puedes volver cuando quieras a revisar lo que escribiste, ver cómo has evolucionado o simplemente releerlo.
+          </p>
+          <div className="flex items-center gap-3 pt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
+            <div
+              className="rounded-full flex-shrink-0 flex items-center justify-center"
+              style={{ width: '44px', height: '44px', background: 'var(--color-primary-container)' }}
+            >
+              <span className="font-sans text-sm font-semibold" style={{ color: 'var(--color-primary)' }}>AA</span>
+            </div>
+            <div>
+              <p className="font-sans text-sm font-semibold text-text">Andrea Álvarez</p>
+              <p className="font-sans text-xs text-text-muted">Psicóloga</p>
+            </div>
+          </div>
+        </div>
+
+        <p className="font-sans text-xs font-semibold uppercase tracking-wide text-text-muted mb-4">
+          Espacios de reflexión
+        </p>
+
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {modules.map((mod) => (
             <button
