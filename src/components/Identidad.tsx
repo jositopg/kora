@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
-import type { IdentidadEntry } from '../types'
+import type { IdentidadEntry, Parte } from '../types'
 
-type Step = 'input' | 'balanza' | 'integracion' | 'guardado'
+type Step = 'partes' | 'peso' | 'complementarias' | 'integracion' | 'guardado'
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('es-ES', {
@@ -13,14 +13,33 @@ function formatDate(iso: string): string {
   })
 }
 
+function PesoVisual({ peso }: { peso: number }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      {Array.from({ length: 10 }).map((_, i) => (
+        <div
+          key={i}
+          className="rounded-full transition-all"
+          style={{
+            width: 8,
+            height: 8,
+            background: i < peso ? '#A0633A' : 'var(--color-border)',
+            opacity: i < peso ? 1 - i * 0.05 : 1,
+          }}
+        />
+      ))}
+      <span className="font-sans text-xs text-text-muted ml-1">{peso}/10</span>
+    </div>
+  )
+}
+
 export default function Identidad() {
   const [entries, setEntries] = useLocalStorage<IdentidadEntry[]>('kora_identidad', [])
 
-  const [step, setStep] = useState<Step>('input')
-  const [etiqueta, setEtiqueta] = useState('')
-  const [desencadenante, setDesencadenante] = useState('')
-  const [opuesto, setOpuesto] = useState('')
-  const [situacionDistinta, setSituacionDistinta] = useState('')
+  const [step, setStep] = useState<Step>('partes')
+  const [inputParte, setInputParte] = useState('')
+  const [partes, setPartes] = useState<Parte[]>([])
+  const [complementariaIdx, setComplementariaIdx] = useState(0)
   const [showHistory, setShowHistory] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
@@ -42,13 +61,48 @@ export default function Identidad() {
     e.target.style.borderColor = 'var(--color-border)'
   }
 
+  const addParte = () => {
+    if (!inputParte.trim()) return
+    const nueva: Parte = {
+      id: `p_${Date.now()}`,
+      etiqueta: inputParte.trim(),
+      peso: 5,
+      situacion: '',
+      complementaria: undefined,
+    }
+    setPartes(prev => [...prev, nueva])
+    setInputParte('')
+  }
+
+  const updateParte = (id: string, changes: Partial<Parte>) => {
+    setPartes(prev => prev.map(p => p.id === id ? { ...p, ...changes } : p))
+  }
+
+  const updateComplementaria = (id: string, etiqueta: string, situacion: string) => {
+    setPartes(prev =>
+      prev.map(p =>
+        p.id === id
+          ? { ...p, complementaria: { etiqueta, situacion } }
+          : p
+      )
+    )
+  }
+
+  const removeParte = (id: string) => {
+    setPartes(prev => prev.filter(p => p.id !== id))
+  }
+
+  const todasLasPartes = [
+    ...partes.map(p => ({ etiqueta: p.etiqueta, peso: p.peso, situacion: p.situacion, esOriginal: true })),
+    ...partes
+      .filter(p => p.complementaria?.etiqueta)
+      .map(p => ({ etiqueta: p.complementaria!.etiqueta, peso: Math.max(1, 10 - p.peso), situacion: p.complementaria!.situacion, esOriginal: false })),
+  ]
+
   const handleSave = () => {
     const entry: IdentidadEntry = {
       id: `id_${Date.now()}`,
-      etiqueta,
-      desencadenante,
-      opuesto,
-      situacionDistinta,
+      partes,
       createdAt: new Date().toISOString(),
     }
     setEntries(prev => [entry, ...prev])
@@ -56,60 +110,87 @@ export default function Identidad() {
   }
 
   const handleReset = () => {
-    setEtiqueta('')
-    setDesencadenante('')
-    setOpuesto('')
-    setSituacionDistinta('')
-    setStep('input')
+    setPartes([])
+    setInputParte('')
+    setComplementariaIdx(0)
+    setStep('partes')
     setShowHistory(false)
   }
+
+  const canAdvanceFromPeso = partes.every(p => p.situacion.trim().length > 0)
+  const parteActual = partes[complementariaIdx]
 
   return (
     <div className="min-h-screen pb-16" style={{ background: 'var(--color-bg)' }}>
       <div className="max-w-2xl mx-auto px-6 pt-8">
         <PageHeader
           title="Flexibilidad de Identidad"
-          subtitle="Tú eres más que cualquier etiqueta"
+          subtitle="Todas tus partes tienen su lugar"
         />
 
-        {/* Paso 1: Registro de la etiqueta */}
-        {step === 'input' && (
+        {/* Paso 1: Añadir partes */}
+        {step === 'partes' && (
           <div>
             <div className="rounded-2xl p-5 mb-5" style={cardStyle}>
-              <p className="font-sans text-sm text-text-muted leading-relaxed mb-5">
-                A veces nos definimos con etiquetas absolutas — <em>"Soy ansiosa"</em>, <em>"Soy un desastre"</em>, <em>"Soy insegura"</em>.
-                Estas etiquetas nos achican. Este ejercicio te ayuda a ver que eres mucho más que eso.
+              <p className="font-sans text-sm text-text-muted leading-relaxed mb-4">
+                Somos personas complejas y múltiples. Describe todas las partes que sientes que te definen —
+                sin filtros, sin juzgar. Pueden ser adjetivos, roles, estados...
               </p>
               <label className="block font-sans text-sm font-semibold text-text mb-3">
-                ¿Con qué etiqueta te defines o te han definido?
+                ¿Cómo te describes? Añade todas las partes que se te ocurran.
               </label>
-              <div className="flex items-center gap-2">
-                <span
-                  className="font-serif text-base font-semibold shrink-0"
-                  style={{ color: 'var(--color-primary)' }}
-                >
-                  Yo soy...
-                </span>
+              <div className="flex gap-2 mb-4">
                 <input
                   type="text"
-                  value={etiqueta}
-                  onChange={e => setEtiqueta(e.target.value)}
-                  placeholder="ansiosa, un fracaso, torpe..."
+                  value={inputParte}
+                  onChange={e => setInputParte(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addParte() } }}
+                  placeholder="Ej: ansiosa, creativa, perfeccionista..."
                   className="flex-1 px-4 py-2.5 rounded-xl font-sans text-sm outline-none"
                   style={textareaStyle}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                 />
+                <button
+                  onClick={addParte}
+                  disabled={!inputParte.trim()}
+                  className="px-5 py-2.5 rounded-xl font-sans text-sm font-semibold transition-all disabled:opacity-40"
+                  style={{ background: 'var(--color-primary)', color: '#fff' }}
+                >
+                  +
+                </button>
               </div>
+
+              {partes.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {partes.map(p => (
+                    <div
+                      key={p.id}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-sans text-sm"
+                      style={{ background: '#A0633A18', border: '1.5px solid #A0633A44', color: '#A0633A' }}
+                    >
+                      <span>{p.etiqueta}</span>
+                      <button
+                        onClick={() => removeParte(p.id)}
+                        className="text-sm leading-none opacity-60 hover:opacity-100"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <button
-              onClick={() => setStep('balanza')}
-              disabled={!etiqueta.trim()}
+              onClick={() => setStep('peso')}
+              disabled={partes.length < 2}
               className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
-              Explorar esta etiqueta →
+              {partes.length < 2
+                ? `Añade al menos ${2 - partes.length} parte${partes.length === 1 ? ' más' : 's'}`
+                : `Explorar mis ${partes.length} partes →`}
             </button>
 
             {entries.length > 0 && (
@@ -130,33 +211,44 @@ export default function Identidad() {
                       className="w-full text-left p-4"
                       onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
                     >
-                      <p className="font-sans text-xs text-text-muted mb-1">{formatDate(entry.createdAt)}</p>
-                      <p className="font-sans text-sm text-text">
-                        <span className="text-text-muted">Yo soy... </span>
-                        <span className="font-semibold">{entry.etiqueta}</span>
-                      </p>
+                      <p className="font-sans text-xs text-text-muted mb-2">{formatDate(entry.createdAt)}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {entry.partes.map(p => (
+                          <span
+                            key={p.id}
+                            className="px-2.5 py-1 rounded-full font-sans text-xs"
+                            style={{ background: '#A0633A18', color: '#A0633A' }}
+                          >
+                            {p.etiqueta}
+                          </span>
+                        ))}
+                      </div>
                     </button>
                     {expandedId === entry.id && (
                       <div className="px-4 pb-4 border-t" style={{ borderColor: 'var(--color-border)' }}>
-                        <div className="mt-3 grid grid-cols-2 gap-3">
-                          <div
-                            className="rounded-xl p-3"
-                            style={{ background: 'var(--color-primary-container)' }}
-                          >
-                            <p className="font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-1">Parte A</p>
-                            <p className="font-sans text-xs text-text">
-                              Me siento <strong>{entry.etiqueta}</strong> cuando {entry.desencadenante}
-                            </p>
-                          </div>
-                          <div
-                            className="rounded-xl p-3"
-                            style={{ background: 'var(--color-surface-low)' }}
-                          >
-                            <p className="font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-1">Parte B</p>
-                            <p className="font-sans text-xs text-text">
-                              También soy <strong>{entry.opuesto}</strong> cuando {entry.situacionDistinta}
-                            </p>
-                          </div>
+                        <div className="mt-3 flex flex-col gap-3">
+                          {entry.partes.map(p => (
+                            <div key={p.id}>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="font-sans text-sm font-semibold text-text">{p.etiqueta}</span>
+                                <PesoVisual peso={p.peso} />
+                              </div>
+                              {p.situacion && (
+                                <p className="font-sans text-xs text-text-muted">{p.situacion}</p>
+                              )}
+                              {p.complementaria?.etiqueta && (
+                                <div
+                                  className="mt-2 rounded-lg px-3 py-2"
+                                  style={{ background: 'var(--color-surface-low)' }}
+                                >
+                                  <p className="font-sans text-xs text-text-muted">
+                                    También: <strong className="text-text">{p.complementaria.etiqueta}</strong>
+                                    {p.complementaria.situacion && ` — ${p.complementaria.situacion}`}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          ))}
                         </div>
                       </div>
                     )}
@@ -167,193 +259,339 @@ export default function Identidad() {
           </div>
         )}
 
-        {/* Paso 2: Balanza */}
-        {step === 'balanza' && (
+        {/* Paso 2: Peso y situaciones */}
+        {step === 'peso' && (
           <div>
-            <div
-              className="rounded-2xl p-4 mb-6"
-              style={{ background: 'var(--color-primary-container)' }}
-            >
-              <p className="font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-1">
-                La etiqueta que exploramos
-              </p>
-              <p className="font-serif text-base font-semibold text-text">
-                "Yo soy {etiqueta}"
-              </p>
-            </div>
-
             <p className="font-sans text-sm text-text-muted mb-5 leading-relaxed">
-              Ahora vamos a ver los dos lados. Esta etiqueta puede ser cierta en algunos momentos,
-              pero no define quién eres en todos ellos.
+              Para cada parte, indica cuánto espacio ocupa en tu vida (peso) y en qué situaciones o momentos aparece.
             </p>
 
             <div className="flex flex-col gap-4 mb-6">
-              {/* Lado A */}
-              <div
-                className="rounded-2xl p-5"
-                style={{
-                  ...cardStyle,
-                  borderLeft: '4px solid #A0633A',
-                }}
-              >
-                <p className="font-sans text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: '#A0633A' }}>
-                  Parte A
-                </p>
-                <p className="font-sans text-sm text-text mb-3">
-                  Tengo una parte que se siente{' '}
-                  <span className="font-semibold" style={{ color: '#A0633A' }}>{etiqueta}</span>{' '}
-                  cuando...
-                </p>
-                <textarea
-                  value={desencadenante}
-                  onChange={e => setDesencadenante(e.target.value)}
-                  rows={2}
-                  placeholder="me enfrento a una situación nueva, me critican, estoy sola..."
-                  className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
-                  style={textareaStyle}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                />
-              </div>
+              {partes.map(p => (
+                <div key={p.id} className="rounded-2xl p-5" style={cardStyle}>
+                  <div className="flex items-center justify-between mb-4">
+                    <span
+                      className="px-3 py-1 rounded-full font-sans text-sm font-semibold"
+                      style={{ background: '#A0633A18', color: '#A0633A' }}
+                    >
+                      {p.etiqueta}
+                    </span>
+                  </div>
 
-              {/* Separador visual */}
-              <div className="flex items-center gap-3">
-                <div className="flex-1 h-px" style={{ background: 'var(--color-border)' }} />
-                <span className="font-sans text-xs text-text-muted">y también</span>
-                <div className="flex-1 h-px" style={{ background: 'var(--color-border)' }} />
-              </div>
+                  {/* Slider de peso */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="font-sans text-xs font-semibold text-text-muted uppercase tracking-wide">
+                        ¿Cuánto espacio ocupa esta parte en ti?
+                      </label>
+                      <span className="font-sans text-xs font-bold" style={{ color: '#A0633A' }}>
+                        {p.peso}/10
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min={1}
+                      max={10}
+                      value={p.peso}
+                      onChange={e => updateParte(p.id, { peso: Number(e.target.value) })}
+                      className="w-full"
+                      style={{ accentColor: '#A0633A' }}
+                    />
+                    <PesoVisual peso={p.peso} />
+                  </div>
 
-              {/* Lado B */}
-              <div
-                className="rounded-2xl p-5"
-                style={{
-                  ...cardStyle,
-                  borderLeft: '4px solid #7a9e7e',
-                }}
-              >
-                <p className="font-sans text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: '#7a9e7e' }}>
-                  Parte B
-                </p>
-                <p className="font-sans text-sm text-text mb-3">
-                  También tengo una parte que es...
-                </p>
-                <input
-                  type="text"
-                  value={opuesto}
-                  onChange={e => setOpuesto(e.target.value)}
-                  placeholder="tranquila, capaz, segura..."
-                  className="w-full px-4 py-2.5 rounded-xl font-sans text-sm outline-none mb-3"
-                  style={textareaStyle}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                />
-                <p className="font-sans text-sm text-text mb-2">cuando...</p>
-                <textarea
-                  value={situacionDistinta}
-                  onChange={e => setSituacionDistinta(e.target.value)}
-                  rows={2}
-                  placeholder="estoy en un entorno familiar, hago algo que domino, tengo tiempo..."
-                  className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
-                  style={textareaStyle}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                />
-              </div>
+                  {/* Situación */}
+                  <div>
+                    <label className="block font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">
+                      ¿En qué momentos o situaciones aparece esta parte?
+                    </label>
+                    <textarea
+                      value={p.situacion}
+                      onChange={e => updateParte(p.id, { situacion: e.target.value })}
+                      rows={2}
+                      placeholder="Cuando tengo que tomar decisiones, cuando estoy con desconocidos..."
+                      className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
+                      style={textareaStyle}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
 
             <button
-              onClick={() => setStep('integracion')}
-              disabled={!desencadenante.trim() || !opuesto.trim() || !situacionDistinta.trim()}
+              onClick={() => { setComplementariaIdx(0); setStep('complementarias') }}
+              disabled={!canAdvanceFromPeso}
               className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
-              Ver la imagen completa →
+              Descubrir partes complementarias →
             </button>
           </div>
         )}
 
-        {/* Paso 3: Integración */}
-        {step === 'integracion' && (
+        {/* Paso 3: Partes complementarias */}
+        {step === 'complementarias' && parteActual && (
           <div>
-            {/* Las dos partes lado a lado */}
-            <div className="grid grid-cols-2 gap-3 mb-5">
-              <div
-                className="rounded-2xl p-4"
-                style={{ background: '#A0633A18', border: '1.5px solid #A0633A44' }}
-              >
-                <p className="font-sans text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#A0633A' }}>
-                  Parte A
-                </p>
-                <p className="font-sans text-xs text-text leading-relaxed">
-                  Me siento <strong>{etiqueta}</strong> cuando {desencadenante}
-                </p>
-              </div>
-              <div
-                className="rounded-2xl p-4"
-                style={{ background: '#7a9e7e18', border: '1.5px solid #7a9e7e44' }}
-              >
-                <p className="font-sans text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#7a9e7e' }}>
-                  Parte B
-                </p>
-                <p className="font-sans text-xs text-text leading-relaxed">
-                  También soy <strong>{opuesto}</strong> cuando {situacionDistinta}
-                </p>
-              </div>
+            {/* Progreso */}
+            <div className="flex gap-1.5 mb-6">
+              {partes.map((_, i) => (
+                <div
+                  key={i}
+                  className="flex-1 h-1.5 rounded-full transition-all"
+                  style={{
+                    background: i <= complementariaIdx ? '#A0633A' : 'var(--color-border)',
+                  }}
+                />
+              ))}
             </div>
 
-            {/* Mensaje de integración */}
             <div
-              className="rounded-2xl p-6 mb-5 text-center"
+              className="rounded-2xl p-4 mb-5"
+              style={{ background: 'var(--color-primary-container)' }}
+            >
+              <p className="font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-1">
+                Explorando tu parte
+              </p>
+              <p className="font-serif text-lg font-semibold text-text mb-1">"{parteActual.etiqueta}"</p>
+              <PesoVisual peso={parteActual.peso} />
+              {parteActual.situacion && (
+                <p className="font-sans text-xs text-text-muted mt-2">
+                  Aparece cuando: {parteActual.situacion}
+                </p>
+              )}
+            </div>
+
+            <div className="rounded-2xl p-5 mb-5" style={cardStyle}>
+              <p className="font-sans text-sm text-text leading-relaxed mb-4">
+                A veces creemos que una parte nos define completamente. Pero casi siempre existe una parte
+                aparentemente opuesta que también aparece — en otros contextos, con otras personas,
+                en otros momentos. No se contradicen: se complementan.
+              </p>
+
+              <p className="font-sans text-sm font-semibold text-text mb-4">
+                ¿Puedes identificar una parte tuya que parece opuesta a{' '}
+                <span style={{ color: '#A0633A' }}>"{parteActual.etiqueta}"</span>,
+                pero que también aparece en tu vida?
+              </p>
+
+              <div className="mb-4">
+                <label className="block font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">
+                  Esa otra parte es...
+                </label>
+                <input
+                  type="text"
+                  value={parteActual.complementaria?.etiqueta ?? ''}
+                  onChange={e =>
+                    updateComplementaria(
+                      parteActual.id,
+                      e.target.value,
+                      parteActual.complementaria?.situacion ?? ''
+                    )
+                  }
+                  placeholder="Ej: tranquila, valiente, despreocupada..."
+                  className="w-full px-4 py-2.5 rounded-xl font-sans text-sm outline-none"
+                  style={textareaStyle}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                />
+              </div>
+
+              {parteActual.complementaria?.etiqueta && (
+                <div>
+                  <label className="block font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">
+                    ¿En qué momentos aparece esa parte?
+                  </label>
+                  <textarea
+                    value={parteActual.complementaria?.situacion ?? ''}
+                    onChange={e =>
+                      updateComplementaria(
+                        parteActual.id,
+                        parteActual.complementaria?.etiqueta ?? '',
+                        e.target.value
+                      )
+                    }
+                    rows={2}
+                    placeholder="Cuando estoy con personas de confianza, cuando hago algo que disfruto..."
+                    className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
+                    style={textareaStyle}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Visualización de complementariedad */}
+            {parteActual.complementaria?.etiqueta && (
+              <div className="flex items-center gap-3 mb-5">
+                <div
+                  className="flex-1 rounded-2xl p-3 text-center"
+                  style={{ background: '#A0633A18', border: '1.5px solid #A0633A44' }}
+                >
+                  <p className="font-sans text-sm font-semibold" style={{ color: '#A0633A' }}>
+                    {parteActual.etiqueta}
+                  </p>
+                </div>
+                <span className="font-sans text-lg text-text-muted">+</span>
+                <div
+                  className="flex-1 rounded-2xl p-3 text-center"
+                  style={{ background: 'var(--color-surface-low)', border: '1.5px solid var(--color-border)' }}
+                >
+                  <p className="font-sans text-sm font-semibold text-text">
+                    {parteActual.complementaria.etiqueta}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  if (complementariaIdx < partes.length - 1) {
+                    setComplementariaIdx(i => i + 1)
+                  } else {
+                    setStep('integracion')
+                  }
+                }}
+                className="flex-1 py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90"
+                style={{ background: 'var(--color-primary)', color: '#fff' }}
+              >
+                {complementariaIdx < partes.length - 1 ? 'Siguiente parte →' : 'Ver mi mapa completo →'}
+              </button>
+            </div>
+
+            <button
+              onClick={() => {
+                if (complementariaIdx < partes.length - 1) {
+                  setComplementariaIdx(i => i + 1)
+                } else {
+                  setStep('integracion')
+                }
+              }}
+              className="w-full mt-2 py-3 rounded-full font-sans text-sm transition-colors"
+              style={{ background: 'transparent', color: 'var(--color-text-muted)' }}
+            >
+              Saltar esta parte
+            </button>
+          </div>
+        )}
+
+        {/* Paso 4: Integración */}
+        {step === 'integracion' && (
+          <div>
+            <div
+              className="rounded-2xl p-5 mb-5 text-center"
               style={cardStyle}
             >
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center text-xl mx-auto mb-4"
-                style={{ background: 'var(--color-primary-container)' }}
-              >
-                ◎
-              </div>
-              <p className="font-serif text-lg font-semibold text-text leading-snug mb-3">
-                Tú eres la persona en la que ocurren ambas cosas, dependiendo del momento.
+              <p className="font-serif text-lg font-semibold text-text mb-2">
+                Este eres tú
               </p>
               <p className="font-sans text-sm text-text-muted leading-relaxed">
-                No eres una etiqueta fija. Eres un ser que siente, cambia y responde al contexto.
-                <strong className="text-text"> "{etiqueta}"</strong> es un estado que a veces aparece,
-                no una sentencia sobre quién eres.
+                Todas estas partes coexisten en ti. No se excluyen — se complementan.
+                Ninguna te define por completo. Todas tienen su espacio y su momento.
               </p>
             </div>
+
+            {/* Partes originales con sus pesos y complementarias */}
+            <div className="flex flex-col gap-4 mb-6">
+              {partes.map(p => (
+                <div key={p.id} className="rounded-2xl overflow-hidden" style={cardStyle}>
+                  <div className="p-4" style={{ borderLeft: '4px solid #A0633A' }}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-sans text-sm font-semibold text-text">{p.etiqueta}</span>
+                      <PesoVisual peso={p.peso} />
+                    </div>
+                    {p.situacion && (
+                      <p className="font-sans text-xs text-text-muted">
+                        Aparece cuando: {p.situacion}
+                      </p>
+                    )}
+                  </div>
+
+                  {p.complementaria?.etiqueta && (
+                    <div
+                      className="px-4 py-3"
+                      style={{ background: 'var(--color-surface-low)', borderLeft: '4px solid var(--color-border)' }}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-sans text-xs text-text-muted">También:</span>
+                        <span className="font-sans text-sm font-semibold text-text">{p.complementaria.etiqueta}</span>
+                      </div>
+                      {p.complementaria.situacion && (
+                        <p className="font-sans text-xs text-text-muted">
+                          Aparece cuando: {p.complementaria.situacion}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Nube de partes */}
+            {todasLasPartes.length > 0 && (
+              <div
+                className="rounded-2xl p-5 mb-5"
+                style={{ background: 'var(--color-primary-container)' }}
+              >
+                <p className="font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-3">
+                  Todas tus partes
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {todasLasPartes.map((p, i) => (
+                    <span
+                      key={i}
+                      className="px-3 py-1.5 rounded-full font-sans text-sm font-medium transition-all"
+                      style={{
+                        background: p.esOriginal ? '#A0633A' : 'var(--color-surface)',
+                        color: p.esOriginal ? '#fff' : 'var(--color-text)',
+                        fontSize: `${0.7 + p.peso * 0.04}rem`,
+                      }}
+                    >
+                      {p.etiqueta}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <button
               onClick={handleSave}
               className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
-              Guardar este ejercicio →
+              Guardar mi mapa →
             </button>
           </div>
         )}
 
-        {/* Paso 4: Guardado */}
+        {/* Paso 5: Guardado */}
         {step === 'guardado' && (
           <div className="text-center">
             <div className="rounded-2xl p-8 mb-5" style={cardStyle}>
               <div className="text-4xl mb-4">🌿</div>
               <h2 className="font-serif text-xl font-semibold text-text mb-3">
-                Guardado
+                Mapa guardado
               </h2>
               <p className="font-sans text-sm text-text-muted leading-relaxed mb-5">
-                Reconocer que somos múltiples y contradictorios es un acto de honestidad y de compasión hacia uno mismo.
+                Reconocer tu multiplicidad es un acto de honestidad y compasión.
+                Eres todo esto, y más.
               </p>
-              <div
-                className="rounded-xl p-4 text-left"
-                style={{ background: 'var(--color-primary-container)' }}
-              >
-                <p className="font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">
-                  Lo que has descubierto
-                </p>
-                <p className="font-sans text-sm text-text leading-relaxed">
-                  Tengo una parte que se siente <strong>{etiqueta}</strong> cuando {desencadenante},
-                  y también tengo una parte que es <strong>{opuesto}</strong> cuando {situacionDistinta}.
-                </p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {todasLasPartes.map((p, i) => (
+                  <span
+                    key={i}
+                    className="px-3 py-1.5 rounded-full font-sans text-sm"
+                    style={{
+                      background: p.esOriginal ? '#A0633A' : 'var(--color-surface-low)',
+                      color: p.esOriginal ? '#fff' : 'var(--color-text-muted)',
+                    }}
+                  >
+                    {p.etiqueta}
+                  </span>
+                ))}
               </div>
             </div>
             <button
@@ -361,7 +599,7 @@ export default function Identidad() {
               className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
-              Explorar otra etiqueta
+              Crear otro mapa
             </button>
           </div>
         )}

@@ -60,12 +60,20 @@ export interface ControlEntry {
 }
 
 // Flexibilidad de Identidad
-export interface IdentidadEntry {
+export interface Parte {
   id: string
   etiqueta: string
-  desencadenante: string
-  opuesto: string
-  situacionDistinta: string
+  peso: number
+  situacion: string
+  complementaria?: {
+    etiqueta: string
+    situacion: string
+  }
+}
+
+export interface IdentidadEntry {
+  id: string
+  partes: Parte[]
   createdAt: string
 }
 
