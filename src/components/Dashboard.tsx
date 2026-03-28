@@ -100,7 +100,7 @@ const modules: ModuleCard[] = [
   {
     icon: IconNecesidades,
     title: 'Rastreo de Necesidades',
-    description: 'Monitoriza tu autocuidado',
+    description: '¿Atiendes tus necesidades?',
     path: '/necesidades',
     color: '#b07850',
     bg: '#f0e0d0',
