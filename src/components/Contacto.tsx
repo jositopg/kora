@@ -90,6 +90,21 @@ export default function Contacto() {
           subtitle="Tu consulta llegará directamente a Andrea"
         />
 
+        {/* Explicación del canal */}
+        {estado === 'form' || estado === 'enviando' || estado === 'error' ? (
+          <div
+            className="rounded-2xl p-5 mb-5"
+            style={{ background: 'var(--color-surface)', boxShadow: '0 2px 12px rgba(61,50,40,0.07)', border: '1px solid var(--color-border)' }}
+          >
+            <p className="font-sans text-sm text-text leading-relaxed mb-3">
+              Este espacio no es para pedir una sesión de terapia, sino para hacer una <strong>pregunta concreta</strong> sobre algo que te haya surgido en alguna de las actividades: una duda, algo que te ha removido, o una reflexión que quieras compartir.
+            </p>
+            <p className="font-sans text-sm text-text leading-relaxed">
+              Dicho esto, si quieres aprovechar este canal para <strong>preguntar por información sobre la terapia</strong> o cómo podría ayudarte un proceso terapéutico, también puedes hacerlo aquí con total libertad.
+            </p>
+          </div>
+        ) : null}
+
         {estado === 'enviado' ? (
           <div className="text-center">
             <div className="rounded-2xl p-8 mb-5" style={cardStyle}>
