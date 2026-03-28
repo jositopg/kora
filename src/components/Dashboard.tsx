@@ -54,15 +54,6 @@ const IconNecesidades = (color: string) => (
   </svg>
 )
 
-// Voces: person silhouette + sound arcs
-const IconVoces = (color: string) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <circle cx="6" cy="12" r="2.2" fill={color + '40'} stroke={color} strokeWidth="1.4"/>
-    <path d="M11 8 Q15.5 12 11 16" stroke={color} strokeWidth="1.4" strokeLinecap="round" fill="none"/>
-    <path d="M14 5.5 Q20 12 14 18.5" stroke={color} strokeWidth="1.4" strokeLinecap="round" fill="none"/>
-    <path d="M17 3.5 Q23.5 12 17 20.5" stroke={color} strokeWidth="1.3" strokeLinecap="round" fill="none" strokeOpacity="0.5"/>
-  </svg>
-)
 
 // Identidad: two overlapping circles (Venn / multiple selves)
 const IconIdentidad = (color: string) => (
