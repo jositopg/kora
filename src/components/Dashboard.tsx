@@ -158,7 +158,7 @@ export default function Dashboard() {
             </p>
           </div>
           <p className="font-sans text-sm text-text-muted capitalize text-center">{dateStr}</p>
-          <p className="font-sans text-sm text-text mt-2 text-center">
+          <p className="font-sans text-base text-text mt-2 text-center">
             ¿Cómo te encuentras hoy? Elige un espacio de reflexión.
           </p>
         </div>
