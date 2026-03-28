@@ -151,7 +151,7 @@ export default function Dashboard() {
               <line x1="12" y1="100" x2="88" y2="100" stroke="#A0633A" strokeWidth="3.5" strokeLinecap="round"/>
               <text x="106" y="82" fontFamily="'Manrope', sans-serif" fontSize="34" fontWeight="300" letterSpacing="10" fill="#111111">KORA</text>
             </svg>
-            <p style={{ fontFamily: "'Dancing Script', cursive", fontSize: '1.35rem', color: '#3d3228', letterSpacing: '0.01em' }}>
+            <p style={{ fontFamily: "'Dancing Script', cursive", fontSize: '1.35rem', color: '#3d3228', letterSpacing: '0.01em', fontStyle: 'italic' }}>
               un lugar para estar
             </p>
           </div>
