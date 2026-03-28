@@ -7,6 +7,7 @@ import Emociones from './components/Emociones'
 import Pensamientos from './components/Pensamientos'
 import Necesidades from './components/Necesidades'
 import Voces from './components/Voces'
+import Identidad from './components/Identidad'
 
 export default function App() {
   const [seenDisclaimer] = useLocalStorage<boolean>('santuario_seen_disclaimer', false)
@@ -23,6 +24,7 @@ export default function App() {
       <Route path="/pensamientos" element={<Pensamientos />} />
       <Route path="/necesidades" element={<Necesidades />} />
       <Route path="/voces" element={<Voces />} />
+      <Route path="/identidad" element={<Identidad />} />
     </Routes>
   )
 }

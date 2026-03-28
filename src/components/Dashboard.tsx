@@ -44,6 +44,13 @@ const modules: ModuleCard[] = [
     path: '/voces',
     color: '#a0633a',
   },
+  {
+    icon: '◎',
+    title: 'Flexibilidad de Identidad',
+    description: 'Eres más que cualquier etiqueta',
+    path: '/identidad',
+    color: '#7a6b5a',
+  },
 ]
 
 function formatDate(): string {

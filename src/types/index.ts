@@ -49,6 +49,16 @@ export interface ValoresData {
   updatedAt: string
 }
 
+// Flexibilidad de Identidad
+export interface IdentidadEntry {
+  id: string
+  etiqueta: string
+  desencadenante: string
+  opuesto: string
+  situacionDistinta: string
+  createdAt: string
+}
+
 // Voces Internas
 export interface VozEntry {
   id: string
