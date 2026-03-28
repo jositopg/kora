@@ -20,7 +20,7 @@ export default function ProfesionalLink({ modulo }: Props) {
         className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-sans text-sm font-semibold transition-all hover:opacity-80"
         style={{ background: 'var(--color-primary-container)', color: 'var(--color-primary)' }}
       >
-        Llevar esto a un profesional
+        Contacta con el profesional
       </button>
     </div>
   )
