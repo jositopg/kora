@@ -14,6 +14,7 @@ export default function Emociones() {
   const [selectedTertiary, setSelectedTertiary] = useState<TertiaryEmotion | null>(null)
   const [reflexionCausa, setReflexionCausa] = useState('')
   const [reflexionPasado, setReflexionPasado] = useState('')
+  const [reflexionMensaje, setReflexionMensaje] = useState('')
 
   const selectedPrimary = primaryIdx !== null ? EMOTIONS[primaryIdx] : null
   const selectedSecondary =
@@ -28,6 +29,7 @@ export default function Emociones() {
     setSelectedTertiary(null)
     setReflexionCausa('')
     setReflexionPasado('')
+    setReflexionMensaje('')
   }
 
   const selectPrimary = (idx: number) => {
@@ -307,13 +309,46 @@ export default function Emociones() {
               />
             </div>
 
+            {/* Pregunta 3: mensaje */}
+            <div className="rounded-2xl p-5 mb-5" style={{ background: 'var(--color-surface)', boxShadow: '0 2px 12px rgba(61,50,40,0.07)' }}>
+              <label className="block font-sans text-sm font-semibold text-text mb-2">
+                ¿Qué crees que te está intentando decir esta emoción?
+              </label>
+              <p className="font-sans text-xs text-text-muted mb-3 leading-relaxed">
+                Las emociones no aparecen sin razón. Suelen señalar una necesidad, un límite o algo importante para ti. ¿Qué podría ser en este caso?
+              </p>
+              <textarea
+                value={reflexionMensaje}
+                onChange={e => setReflexionMensaje(e.target.value)}
+                rows={3}
+                placeholder="Escribe lo que se te ocurra, aunque no estés segura/o..."
+                className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
+                style={{
+                  background: 'var(--color-bg)',
+                  color: 'var(--color-text)',
+                  border: '1.5px solid var(--color-border)',
+                }}
+                onFocus={e => { e.target.style.borderColor = 'var(--color-primary)' }}
+                onBlur={e => { e.target.style.borderColor = 'var(--color-border)' }}
+              />
+            </div>
+
             {/* Mensaje de cierre */}
             <div
               className="rounded-2xl p-5 mb-5"
               style={{ background: 'var(--color-primary-container)', borderLeft: '4px solid var(--color-primary)' }}
             >
+              <p className="font-sans text-sm font-semibold text-text mb-3">
+                ¿Por qué estas preguntas?
+              </p>
+              <p className="font-sans text-sm text-text leading-relaxed mb-3">
+                Identificar una emoción es solo el primer paso. Las preguntas que acabas de responder tienen un propósito concreto: ayudarte a entender no solo qué sientes, sino de dónde viene y qué significa para ti.
+              </p>
+              <p className="font-sans text-sm text-text leading-relaxed mb-3">
+                A veces una situación del presente nos genera una respuesta emocional que, si nos fijamos bien, tiene más que ver con algo que ya vivimos antes. El presente activa el pasado. Y esa reacción, aunque pueda parecer desproporcionada o confusa, tiene sentido dentro de nuestra historia.
+              </p>
               <p className="font-sans text-sm text-text leading-relaxed">
-                A veces las situaciones del presente nos recuerdan a otros momentos de nuestra vida y nos generan una respuesta emocional que puede estar más conectada con esa historia pasada que con lo que está ocurriendo ahora. Hacer este trabajo de explorar la emoción y su contexto nos permite conocer mejor nuestra propia historia y entender de dónde venimos emocionalmente.
+                Hacer este trabajo —conectar la emoción con la situación, con el recuerdo y con el mensaje que trae— es una de las formas más poderosas de conocerse. No para analizarse sin fin, sino para relacionarse con uno mismo con más comprensión y menos juicio.
               </p>
             </div>
 
