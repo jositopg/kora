@@ -11,7 +11,7 @@ export default function Disclaimer() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12" style={{ background: 'var(--color-bg)' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12" style={{ background: 'linear-gradient(160deg, #f0ddd8 0%, #ead5c8 40%, #dde8da 100%)' }}>
       <div className="max-w-md w-full text-center">
         {/* Logo */}
         <div className="flex justify-center mb-8">
@@ -29,7 +29,7 @@ export default function Disclaimer() {
         {/* Welcome text */}
         <div
           className="rounded-2xl p-6 mb-6 text-left"
-          style={{ background: 'var(--color-surface)', boxShadow: '0 2px 12px rgba(61,50,40,0.08)' }}
+          style={{ background: 'rgba(255,248,244,0.75)', boxShadow: '0 2px 12px rgba(61,50,40,0.10)', backdropFilter: 'blur(4px)' }}
         >
           <p className="font-sans text-text leading-relaxed mb-4">
             Bienvenida/o a tu espacio de reflexión personal. Aquí encontrarás herramientas para explorar tus emociones,
@@ -44,7 +44,7 @@ export default function Disclaimer() {
         <div
           className="rounded-2xl p-5 mb-8 border-l-4 text-left"
           style={{
-            background: 'var(--color-primary-container)',
+            background: 'rgba(232,216,200,0.80)',
             borderLeftColor: 'var(--color-primary)',
           }}
         >

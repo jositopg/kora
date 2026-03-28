@@ -6,6 +6,7 @@ interface ModuleCard {
   description: string
   path: string
   color: string
+  bg: string
 }
 
 const modules: ModuleCard[] = [
@@ -15,13 +16,15 @@ const modules: ModuleCard[] = [
     description: 'Equilibra tu energía vital',
     path: '/parcelas',
     color: '#6b8c6e',
+    bg: '#ddeade',
   },
   {
     icon: '🌸',
     title: 'Rueda de Emociones',
     description: 'Amplía tu vocabulario emocional',
     path: '/emociones',
-    color: '#c4956a',
+    color: '#b5635c',
+    bg: '#f2d8d6',
   },
   {
     icon: '💭',
@@ -29,13 +32,15 @@ const modules: ModuleCard[] = [
     description: 'Reestructura tus pensamientos',
     path: '/pensamientos',
     color: '#8b7355',
+    bg: '#e5d9c8',
   },
   {
     icon: '🌱',
     title: 'Rastreo de Necesidades',
     description: 'Monitoriza tu autocuidado',
     path: '/necesidades',
-    color: '#7a9e7e',
+    color: '#5a8c72',
+    bg: '#d8ede3',
   },
   {
     icon: '🔍',
@@ -43,20 +48,23 @@ const modules: ModuleCard[] = [
     description: 'Descubre de dónde vienen tus mensajes',
     path: '/voces',
     color: '#a0633a',
+    bg: '#ead8c8',
   },
   {
     icon: '◎',
     title: 'Flexibilidad de Identidad',
     description: 'Eres más que cualquier etiqueta',
     path: '/identidad',
-    color: '#7a6b5a',
+    color: '#9e7070',
+    bg: '#edd8d8',
   },
   {
     icon: '◉',
     title: 'Círculo de Control',
     description: 'Enfoca tu energía donde importa',
     path: '/control',
-    color: '#a0633a',
+    color: '#b06040',
+    bg: '#eadace',
   },
 ]
 
@@ -79,7 +87,7 @@ export default function Dashboard() {
       {/* Header */}
       <header
         className="px-6 pt-10 pb-8"
-        style={{ background: 'var(--color-surface)', boxShadow: '0 2px 12px rgba(61,50,40,0.06)' }}
+        style={{ background: 'linear-gradient(135deg, #ead8ce 0%, #e8d5d0 50%, #dde8da 100%)', boxShadow: '0 2px 16px rgba(61,50,40,0.10)' }}
       >
         <div className="max-w-2xl mx-auto">
           <div className="mb-4">
@@ -105,21 +113,21 @@ export default function Dashboard() {
               onClick={() => navigate(mod.path)}
               className="rounded-2xl p-5 text-left transition-all duration-200 hover:scale-[1.02] active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               style={{
-                background: 'var(--color-surface)',
+                background: mod.bg,
                 boxShadow: '0 2px 12px rgba(61,50,40,0.08)',
               }}
               onMouseEnter={(e) => {
-                ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 20px rgba(61,50,40,0.14)'
-                ;(e.currentTarget as HTMLButtonElement).style.background = 'var(--color-primary-container)'
+                ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 24px rgba(61,50,40,0.16)'
+                ;(e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.02)'
               }}
               onMouseLeave={(e) => {
                 ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 12px rgba(61,50,40,0.08)'
-                ;(e.currentTarget as HTMLButtonElement).style.background = 'var(--color-surface)'
+                ;(e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'
               }}
             >
               <div
                 className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl mb-3"
-                style={{ background: `${mod.color}22` }}
+                style={{ background: `${mod.color}28` }}
               >
                 {mod.icon}
               </div>
