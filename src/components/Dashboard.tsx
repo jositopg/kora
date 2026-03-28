@@ -159,7 +159,7 @@ export default function Dashboard() {
       {/* Header */}
       <header
         className="px-6 pt-10 pb-8"
-        style={{ background: 'linear-gradient(135deg, #ead8ce 0%, #e8d5d0 50%, #dde8da 100%)', boxShadow: '0 2px 16px rgba(61,50,40,0.10)' }}
+        style={{ background: 'linear-gradient(160deg, #fdf5f0 0%, #faf0eb 100%)', boxShadow: '0 2px 16px rgba(61,50,40,0.07)' }}
       >
         <div className="max-w-2xl mx-auto">
           <div className="mb-4">
