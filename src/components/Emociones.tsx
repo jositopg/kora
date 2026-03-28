@@ -12,6 +12,8 @@ export default function Emociones() {
   const [primaryIdx, setPrimaryIdx] = useState<number | null>(null)
   const [secondaryIdx, setSecondaryIdx] = useState<number | null>(null)
   const [selectedTertiary, setSelectedTertiary] = useState<TertiaryEmotion | null>(null)
+  const [reflexionCausa, setReflexionCausa] = useState('')
+  const [reflexionPasado, setReflexionPasado] = useState('')
 
   const selectedPrimary = primaryIdx !== null ? EMOTIONS[primaryIdx] : null
   const selectedSecondary =
@@ -24,6 +26,8 @@ export default function Emociones() {
     setPrimaryIdx(null)
     setSecondaryIdx(null)
     setSelectedTertiary(null)
+    setReflexionCausa('')
+    setReflexionPasado('')
   }
 
   const selectPrimary = (idx: number) => {
@@ -255,14 +259,61 @@ export default function Emociones() {
               <p className="font-sans text-sm text-text leading-relaxed">{selectedTertiary.definition}</p>
             </div>
 
+            {/* Pregunta 1: causa */}
+            <div className="rounded-2xl p-5 mb-4" style={{ background: 'var(--color-surface)', boxShadow: '0 2px 12px rgba(61,50,40,0.07)' }}>
+              <label className="block font-sans text-sm font-semibold text-text mb-2">
+                ¿A qué crees que se debe esta emoción?
+              </label>
+              <p className="font-sans text-xs text-text-muted mb-3 leading-relaxed">
+                ¿Qué situación, pensamiento o contexto crees que la ha desencadenado?
+              </p>
+              <textarea
+                value={reflexionCausa}
+                onChange={e => setReflexionCausa(e.target.value)}
+                rows={3}
+                placeholder="Escribe lo que se te venga..."
+                className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
+                style={{
+                  background: 'var(--color-bg)',
+                  color: 'var(--color-text)',
+                  border: '1.5px solid var(--color-border)',
+                }}
+                onFocus={e => { e.target.style.borderColor = 'var(--color-primary)' }}
+                onBlur={e => { e.target.style.borderColor = 'var(--color-border)' }}
+              />
+            </div>
+
+            {/* Pregunta 2: pasado */}
+            <div className="rounded-2xl p-5 mb-5" style={{ background: 'var(--color-surface)', boxShadow: '0 2px 12px rgba(61,50,40,0.07)' }}>
+              <label className="block font-sans text-sm font-semibold text-text mb-2">
+                ¿Recuerdas alguna otra vez en tu vida que te sentiste así?
+              </label>
+              <p className="font-sans text-xs text-text-muted mb-3 leading-relaxed">
+                Puede ser un momento reciente o algo de hace mucho tiempo.
+              </p>
+              <textarea
+                value={reflexionPasado}
+                onChange={e => setReflexionPasado(e.target.value)}
+                rows={3}
+                placeholder="Escribe lo que recuerdes..."
+                className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
+                style={{
+                  background: 'var(--color-bg)',
+                  color: 'var(--color-text)',
+                  border: '1.5px solid var(--color-border)',
+                }}
+                onFocus={e => { e.target.style.borderColor = 'var(--color-primary)' }}
+                onBlur={e => { e.target.style.borderColor = 'var(--color-border)' }}
+              />
+            </div>
+
+            {/* Mensaje de cierre */}
             <div
-              className="rounded-2xl p-4 mb-5"
-              style={{ background: 'var(--color-primary-container)' }}
+              className="rounded-2xl p-5 mb-5"
+              style={{ background: 'var(--color-primary-container)', borderLeft: '4px solid var(--color-primary)' }}
             >
-              <p className="font-sans text-xs text-text-muted mb-1 font-semibold uppercase tracking-wide">Reflexión</p>
-              <p className="font-sans text-sm text-text">
-                Reconocer y nombrar lo que sientes es el primer paso hacia la regulación emocional.
-                Observa esta emoción sin juzgarla.
+              <p className="font-sans text-sm text-text leading-relaxed">
+                A veces las situaciones del presente nos recuerdan a otros momentos de nuestra vida y nos generan una respuesta emocional que puede estar más conectada con esa historia pasada que con lo que está ocurriendo ahora. Hacer este trabajo de explorar la emoción y su contexto nos permite conocer mejor nuestra propia historia y entender de dónde venimos emocionalmente.
               </p>
             </div>
 
