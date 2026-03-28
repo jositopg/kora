@@ -69,8 +69,7 @@ export default function Dashboard() {
       >
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-3 mb-2">
-            <span className="text-3xl">🌿</span>
-            <h1 className="text-2xl font-serif font-semibold text-text">Santuario Digital</h1>
+            <h1 className="text-2xl font-serif font-semibold text-text">KORA</h1>
           </div>
           <p className="font-sans text-sm text-text-muted capitalize">{dateStr}</p>
           <p className="font-sans text-sm text-text mt-2">
