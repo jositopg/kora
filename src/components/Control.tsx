@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
+import ProfesionalLink from './ui/ProfesionalLink'
 import type { ControlEntry } from '../types'
 
 type Step = 'ejemplo' | 'situacion' | 'clasificar' | 'reflexion' | 'guardado'
@@ -596,6 +597,7 @@ export default function Control() {
             </button>
           </div>
         )}
+        <ProfesionalLink modulo="control" />
       </div>
     </div>
   )

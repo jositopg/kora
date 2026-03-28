@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
+import ProfesionalLink from './ui/ProfesionalLink'
 import type { VozEntry } from '../types'
 
 type Step = 'input' | 'origen' | 'clasificacion' | 'distancia' | 'redialogo' | 'guardado'
@@ -508,6 +509,7 @@ export default function Voces() {
             </button>
           </div>
         )}
+        <ProfesionalLink modulo="voces" />
       </div>
     </div>
   )

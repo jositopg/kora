@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
+import ProfesionalLink from './ui/ProfesionalLink'
 import type { IdentidadEntry, Parte } from '../types'
 
 type Step = 'partes' | 'peso' | 'complementarias' | 'integracion' | 'guardado'
@@ -603,6 +604,7 @@ export default function Identidad() {
             </button>
           </div>
         )}
+        <ProfesionalLink modulo="identidad" />
       </div>
     </div>
   )

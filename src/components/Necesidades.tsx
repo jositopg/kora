@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
+import ProfesionalLink from './ui/ProfesionalLink'
 import type { NecesidadEntry } from '../types'
 
 const PRIORITY_OPTIONS: Array<{ value: 'Alta' | 'Media' | 'Baja'; color: string }> = [
@@ -334,6 +335,7 @@ export default function Necesidades() {
             })}
           </div>
         </section>
+        <ProfesionalLink modulo="necesidades" />
       </div>
     </div>
   )

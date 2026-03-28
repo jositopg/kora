@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
+import ProfesionalLink from './ui/ProfesionalLink'
 import type { ParcelasData, Parcela } from '../types'
 
 const DEFAULT_PARCELAS: Parcela[] = [
@@ -306,6 +307,7 @@ export default function Parcelas() {
         >
           {saveMsg || 'Guardar reflexión'}
         </button>
+        <ProfesionalLink modulo="parcelas" />
       </div>
     </div>
   )

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
+import ProfesionalLink from './ui/ProfesionalLink'
 import type { PensamientoEntry } from '../types'
 
 interface Question {
@@ -415,6 +416,7 @@ export default function Pensamientos() {
             </button>
           </div>
         )}
+        <ProfesionalLink modulo="pensamientos" />
       </div>
     </div>
   )

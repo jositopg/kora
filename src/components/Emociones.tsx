@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import PageHeader from './ui/PageHeader'
+import ProfesionalLink from './ui/ProfesionalLink'
 import { EMOTIONS } from '../data/emotions'
 import type { TertiaryEmotion } from '../types'
 
@@ -262,6 +263,7 @@ export default function Emociones() {
             </button>
           </div>
         )}
+        <ProfesionalLink modulo="emociones" />
       </div>
     </div>
   )
