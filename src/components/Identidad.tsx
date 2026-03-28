@@ -156,7 +156,6 @@ export default function Identidad() {
     setShowHistory(false)
   }
 
-  const canAdvanceFromPeso = true
   const parteActual = partes[complementariaIdx]
 
   return (
