@@ -49,6 +49,21 @@ export interface ValoresData {
   updatedAt: string
 }
 
+// Voces Internas
+export interface VozEntry {
+  id: string
+  voz: string
+  origen: {
+    primeraVez: string
+    hayPersona: boolean | null
+    quien: string
+    protege: string
+  }
+  tipo: 'externa' | 'interna' | 'mixta'
+  redialogo: string
+  createdAt: string
+}
+
 // Emotions
 export interface TertiaryEmotion {
   name: string

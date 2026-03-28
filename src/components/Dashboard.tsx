@@ -44,6 +44,13 @@ const modules: ModuleCard[] = [
     path: '/valores',
     color: '#8a6b8c',
   },
+  {
+    icon: '🔍',
+    title: 'Voces Internas',
+    description: 'Descubre de dónde vienen tus mensajes',
+    path: '/voces',
+    color: '#a0633a',
+  },
 ]
 
 function formatDate(): string {
