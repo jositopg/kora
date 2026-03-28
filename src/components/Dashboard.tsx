@@ -115,14 +115,6 @@ const modules: ModuleCard[] = [
     bg: '#f0e0d0',
   },
   {
-    icon: IconVoces,
-    title: 'Voces Internas',
-    description: 'Descubre de dónde vienen tus mensajes',
-    path: '/voces',
-    color: '#a06038',
-    bg: '#e5c8b5',
-  },
-  {
     icon: IconIdentidad,
     title: 'Flexibilidad de Identidad',
     description: 'Eres más que cualquier etiqueta',
