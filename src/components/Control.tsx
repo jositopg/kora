@@ -26,43 +26,13 @@ const SOCRATIC_Q: Record<Zona, (texto: string) => string> = {
   fuera: (t) => `"${t}" está fuera de tu control. ¿Qué necesitarías aceptar o soltar para no gastar más energía en ello?`,
 }
 
-function ControlPill({
-  x, y, label, bg, textColor, fs, ph, prx,
-}: {
-  x: number; y: number; label: string; bg: string; textColor: string
-  fs: number; ph: number; prx: number
-}) {
-  const w = Math.max(label.length * fs * 0.62 + 10, 28)
-  return (
-    <g>
-      <rect x={x - w / 2} y={y - ph / 2} width={w} height={ph} rx={prx} fill={bg} />
-      <text x={x} y={y + fs * 0.38} textAnchor="middle" fontSize={fs}
-        fill={textColor} fontFamily="Manrope, sans-serif" fontWeight="600">
-        {label}
-      </text>
-    </g>
-  )
-}
-
-function TresCirculos({
-  variables,
-  small = false,
-}: {
-  variables: ControlVariable[]
-  small?: boolean
-}) {
-  const size = small ? 220 : 300
+function TresCirculos({ variables }: { variables: ControlVariable[] }) {
+  const size = 260
   const cx = size / 2
   const cy = size / 2
-  const r3 = small ? 100 : 138
-  const r2 = small ? 66 : 90
-  const r1 = small ? 32 : 44
-
-  const trunc = (s: string, n: number) => s.length > n ? s.slice(0, n - 1) + '…' : s
-  const maxLen = small ? 8 : 11
-  const fs = small ? 7 : 8.5
-  const ph = small ? 12 : 14
-  const prx = small ? 5 : 6
+  const r3 = 120
+  const r2 = 78
+  const r1 = 38
 
   const byZona = {
     total: variables.filter(v => v.zona === 'total'),
@@ -70,58 +40,48 @@ function TresCirculos({
     fuera: variables.filter(v => v.zona === 'fuera'),
   }
 
-  // Distribute items at a given radius, equally spaced angularly, starting at top
-  const positions = (items: ControlVariable[], midR: number) =>
-    items.map((v, i) => {
-      const n = items.length
-      const angle = n === 1 ? -Math.PI / 2 : (i / n) * 2 * Math.PI - Math.PI / 2
-      return { label: trunc(v.texto, maxLen), x: cx + midR * Math.cos(angle), y: cy + midR * Math.sin(angle) }
-    })
-
-  // Inner: stack vertically in center
-  const innerPills = byZona.total.map((v, i) => ({
-    label: trunc(v.texto, maxLen),
-    x: cx,
-    y: cy + (i - (byZona.total.length - 1) / 2) * (ph + 3),
-  }))
-
-  const midPills = positions(byZona.influencia, (r1 + r2) / 2)
-  const outerPills = positions(byZona.fuera, (r2 + r3) / 2)
-
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
-      {/* Circles */}
-      <circle cx={cx} cy={cy} r={r3} fill="#ede6db" stroke="#c4b8a8" strokeWidth="1.5"/>
-      <circle cx={cx} cy={cy} r={r2} fill="#d4b89a" opacity="0.65"/>
-      <circle cx={cx} cy={cy} r={r1} fill="#A0633A" opacity="0.9"/>
+    <div className="w-full">
+      {/* SVG circles — clean, no text inside */}
+      <div className="flex justify-center mb-4">
+        <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
+          <circle cx={cx} cy={cy} r={r3} fill="#ede6db" stroke="#c4b8a8" strokeWidth="1.5"/>
+          <circle cx={cx} cy={cy} r={r2} fill="#d4b89a" opacity="0.7"/>
+          <circle cx={cx} cy={cy} r={r1} fill="#A0633A" opacity="0.9"/>
+          {/* Zone labels always visible inside rings */}
+          <text x={cx} y={cy - r2 - 14} textAnchor="middle" fontSize="9" fill="#7a6b5a" fontFamily="Manrope, sans-serif" fontWeight="600">FUERA DE CONTROL</text>
+          <text x={cx} y={cy - r1 - 10} textAnchor="middle" fontSize="8.5" fill="#7a4a28" fontFamily="Manrope, sans-serif" fontWeight="600">INFLUENCIA</text>
+          <text x={cx} y={cy + 5} textAnchor="middle" fontSize="8" fill="#fff" fontFamily="Manrope, sans-serif" fontWeight="700">CONTROL</text>
+        </svg>
+      </div>
 
-      {/* Zone labels when empty */}
-      {byZona.fuera.length === 0 && (
-        <text x={cx} y={cy - r3 + 14} textAnchor="middle" fontSize={small ? 7 : 8.5}
-          fill="#7a6b5a" fontFamily="Manrope, sans-serif">Fuera de control</text>
-      )}
-      {byZona.influencia.length === 0 && (
-        <text x={cx} y={cy - r2 + 13} textAnchor="middle" fontSize={small ? 7 : 8.5}
-          fill="#7a5a3a" fontFamily="Manrope, sans-serif">Influencia</text>
-      )}
-      {byZona.total.length === 0 && (
-        <text x={cx} y={cy + 4} textAnchor="middle" fontSize={small ? 6.5 : 8}
-          fill="#fff" fontFamily="Manrope, sans-serif">Control</text>
-      )}
-
-      {/* Outer ring pills */}
-      {outerPills.map((p, i) => (
-        <ControlPill key={i} {...p} bg="rgba(255,250,245,0.90)" textColor="#7a6b5a" fs={fs} ph={ph} prx={prx}/>
-      ))}
-      {/* Middle ring pills */}
-      {midPills.map((p, i) => (
-        <ControlPill key={i} {...p} bg="rgba(255,246,236,0.92)" textColor="#6b4a28" fs={fs} ph={ph} prx={prx}/>
-      ))}
-      {/* Inner pills */}
-      {innerPills.map((p, i) => (
-        <ControlPill key={i} {...p} bg="rgba(255,255,255,0.22)" textColor="#fff" fs={fs} ph={ph} prx={prx}/>
-      ))}
-    </svg>
+      {/* Legend outside the circles — fully readable */}
+      {(['fuera', 'influencia', 'total'] as const).map(zona => {
+        const items = byZona[zona]
+        if (items.length === 0) return null
+        return (
+          <div key={zona} className="mb-3">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: ZONA_COLORS[zona] }}/>
+              <span className="font-sans text-xs font-semibold uppercase tracking-wide" style={{ color: ZONA_COLORS[zona] }}>
+                {ZONA_LABELS[zona]}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2 pl-4">
+              {items.map((v, i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1 rounded-full font-sans text-xs font-medium"
+                  style={{ background: `${ZONA_COLORS[zona]}18`, color: 'var(--color-text)', border: `1px solid ${ZONA_COLORS[zona]}40` }}
+                >
+                  {v.texto}
+                </span>
+              ))}
+            </div>
+          </div>
+        )
+      })}
+    </div>
   )
 }
 
@@ -344,7 +304,7 @@ export default function Control() {
                     {expandedId === entry.id && (
                       <div className="px-4 pb-4 border-t" style={{ borderColor: 'var(--color-border)' }}>
                         <div className="flex justify-center my-3">
-                          <TresCirculos variables={entry.variables ?? []} small />
+                          <TresCirculos variables={entry.variables ?? []} />
                         </div>
                       </div>
                     )}
@@ -476,7 +436,7 @@ export default function Control() {
                     value={reflexiones[v.texto] ?? ''}
                     onChange={e => setReflexiones(prev => ({ ...prev, [v.texto]: e.target.value }))}
                     rows={2}
-                    placeholder="Escribe tu respuesta..."
+                    placeholder="Escribe tu respuesta... (opcional)"
                     className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
                     style={inputStyle}
                     onFocus={onFocus}
@@ -501,7 +461,7 @@ export default function Control() {
           <div className="text-center">
             <div className="rounded-2xl p-8 mb-5" style={cardStyle}>
               <div className="flex justify-center mb-4">
-                <TresCirculos variables={clasificadas} small />
+                <TresCirculos variables={clasificadas} />
               </div>
               <h2 className="font-serif text-xl font-semibold text-text mb-3">Guardado</h2>
               <p className="font-sans text-sm text-text-muted leading-relaxed">
