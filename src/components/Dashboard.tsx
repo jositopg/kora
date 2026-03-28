@@ -68,8 +68,12 @@ export default function Dashboard() {
         style={{ background: 'var(--color-surface)', boxShadow: '0 2px 12px rgba(61,50,40,0.06)' }}
       >
         <div className="max-w-2xl mx-auto">
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-2xl font-serif font-semibold text-text">KORA</h1>
+          <div className="mb-4">
+            <svg viewBox="0 0 240 130" fill="none" xmlns="http://www.w3.org/2000/svg" width="160">
+              <path d="M 22,95 L 22,43 A 28,28 0 0,1 78,43 L 78,95" stroke="#A0633A" strokeWidth="3.5" strokeLinecap="round"/>
+              <line x1="12" y1="100" x2="88" y2="100" stroke="#A0633A" strokeWidth="3.5" strokeLinecap="round"/>
+              <text x="106" y="82" fontFamily="'Manrope', sans-serif" fontSize="34" fontWeight="300" letterSpacing="10" fill="#111111">KORA</text>
+            </svg>
           </div>
           <p className="font-sans text-sm text-text-muted capitalize">{dateStr}</p>
           <p className="font-sans text-sm text-text mt-2">
