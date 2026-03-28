@@ -49,13 +49,17 @@ export interface ValoresData {
   updatedAt: string
 }
 
-// Círculo de Control
+// Círculos de Influencia
+export interface ControlVariable {
+  texto: string
+  zona: 'total' | 'influencia' | 'fuera'
+}
+
 export interface ControlEntry {
   id: string
-  situacion: string
-  controlo: string[]
-  noControlo: string[]
-  reflexion: string
+  preocupacion: string
+  variables: ControlVariable[]
+  reflexiones: Record<string, string>
   createdAt: string
 }
 
