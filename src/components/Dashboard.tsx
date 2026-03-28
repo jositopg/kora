@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
 interface ModuleCard {
-  icon: string
+  icon: (color: string) => React.ReactNode
   title: string
   description: string
   path: string
@@ -9,9 +9,81 @@ interface ModuleCard {
   bg: string
 }
 
+// Parcelas: pie chart with 3 equal slices (120° each)
+// Center (12,12), r=9 → top:(12,3) 120°:(19.79,16.5) 240°:(4.21,16.5)
+const IconParcelas = (color: string) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <path d="M12 12 L12 3 A9 9 0 0 1 19.79 16.5 Z" fill={color + '35'} stroke={color} strokeWidth="1.4" strokeLinejoin="round"/>
+    <path d="M12 12 L19.79 16.5 A9 9 0 0 1 4.21 16.5 Z" fill={color + '22'} stroke={color} strokeWidth="1.4" strokeLinejoin="round"/>
+    <path d="M12 12 L4.21 16.5 A9 9 0 0 1 12 3 Z" fill={color + '18'} stroke={color} strokeWidth="1.4" strokeLinejoin="round"/>
+  </svg>
+)
+
+// Emociones: center circle + 6 petal circles (flower / emotion wheel)
+const IconEmociones = (color: string) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="2.8" fill={color + '55'} stroke={color} strokeWidth="1.4"/>
+    <circle cx="12" cy="5" r="1.8" fill={color + '30'} stroke={color} strokeWidth="1.2"/>
+    <circle cx="18.1" cy="8.5" r="1.8" fill={color + '30'} stroke={color} strokeWidth="1.2"/>
+    <circle cx="18.1" cy="15.5" r="1.8" fill={color + '30'} stroke={color} strokeWidth="1.2"/>
+    <circle cx="12" cy="19" r="1.8" fill={color + '30'} stroke={color} strokeWidth="1.2"/>
+    <circle cx="5.9" cy="15.5" r="1.8" fill={color + '30'} stroke={color} strokeWidth="1.2"/>
+    <circle cx="5.9" cy="8.5" r="1.8" fill={color + '30'} stroke={color} strokeWidth="1.2"/>
+  </svg>
+)
+
+// Pensamientos: speech bubble with 3 dots
+const IconPensamientos = (color: string) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <path d="M4 4 H19 Q20.5 4 20.5 5.5 V14 Q20.5 15.5 19 15.5 H13 L9.5 19.5 V15.5 H4 Q2.5 15.5 2.5 14 V5.5 Q2.5 4 4 4 Z"
+      fill={color + '22'} stroke={color} strokeWidth="1.4" strokeLinejoin="round"/>
+    <circle cx="8" cy="9.75" r="1.2" fill={color}/>
+    <circle cx="11.75" cy="9.75" r="1.2" fill={color}/>
+    <circle cx="15.5" cy="9.75" r="1.2" fill={color}/>
+  </svg>
+)
+
+// Necesidades: two-leaf seedling sprout
+const IconNecesidades = (color: string) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <line x1="12" y1="21" x2="12" y2="7" stroke={color} strokeWidth="1.4" strokeLinecap="round"/>
+    <path d="M12 15 C12 15 5 13 4.5 7 C8 6.5 12 10 12 15 Z"
+      fill={color + '35'} stroke={color} strokeWidth="1.3" strokeLinejoin="round"/>
+    <path d="M12 11 C12 11 19 9 19.5 3 C16 2.5 12 6 12 11 Z"
+      fill={color + '25'} stroke={color} strokeWidth="1.3" strokeLinejoin="round"/>
+  </svg>
+)
+
+// Voces: person silhouette + sound arcs
+const IconVoces = (color: string) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <circle cx="6" cy="12" r="2.2" fill={color + '40'} stroke={color} strokeWidth="1.4"/>
+    <path d="M11 8 Q15.5 12 11 16" stroke={color} strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+    <path d="M14 5.5 Q20 12 14 18.5" stroke={color} strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+    <path d="M17 3.5 Q23.5 12 17 20.5" stroke={color} strokeWidth="1.3" strokeLinecap="round" fill="none" strokeOpacity="0.5"/>
+  </svg>
+)
+
+// Identidad: two overlapping circles (Venn / multiple selves)
+const IconIdentidad = (color: string) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <circle cx="9" cy="12" r="6.5" fill={color + '20'} stroke={color} strokeWidth="1.4"/>
+    <circle cx="15" cy="12" r="6.5" fill={color + '20'} stroke={color} strokeWidth="1.4"/>
+  </svg>
+)
+
+// Control: concentric circles (bullseye)
+const IconControl = (color: string) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="9" stroke={color} strokeWidth="1.4" fill="none"/>
+    <circle cx="12" cy="12" r="5.5" stroke={color} strokeWidth="1.4" fill={color + '18'}/>
+    <circle cx="12" cy="12" r="2.2" fill={color} stroke="none"/>
+  </svg>
+)
+
 const modules: ModuleCard[] = [
   {
-    icon: '🌿',
+    icon: IconParcelas,
     title: 'Parcelas de la Vida',
     description: 'Equilibra tu energía vital',
     path: '/parcelas',
@@ -19,7 +91,7 @@ const modules: ModuleCard[] = [
     bg: '#ddeade',
   },
   {
-    icon: '🌸',
+    icon: IconEmociones,
     title: 'Rueda de Emociones',
     description: 'Amplía tu vocabulario emocional',
     path: '/emociones',
@@ -27,7 +99,7 @@ const modules: ModuleCard[] = [
     bg: '#f2d8d6',
   },
   {
-    icon: '💭',
+    icon: IconPensamientos,
     title: 'Laboratorio de Pensamientos',
     description: 'Reestructura tus pensamientos',
     path: '/pensamientos',
@@ -35,7 +107,7 @@ const modules: ModuleCard[] = [
     bg: '#e5d9c8',
   },
   {
-    icon: '🌱',
+    icon: IconNecesidades,
     title: 'Rastreo de Necesidades',
     description: 'Monitoriza tu autocuidado',
     path: '/necesidades',
@@ -43,7 +115,7 @@ const modules: ModuleCard[] = [
     bg: '#d8ede3',
   },
   {
-    icon: '🔍',
+    icon: IconVoces,
     title: 'Voces Internas',
     description: 'Descubre de dónde vienen tus mensajes',
     path: '/voces',
@@ -51,7 +123,7 @@ const modules: ModuleCard[] = [
     bg: '#ead8c8',
   },
   {
-    icon: '◎',
+    icon: IconIdentidad,
     title: 'Flexibilidad de Identidad',
     description: 'Eres más que cualquier etiqueta',
     path: '/identidad',
@@ -59,7 +131,7 @@ const modules: ModuleCard[] = [
     bg: '#edd8d8',
   },
   {
-    icon: '◉',
+    icon: IconControl,
     title: 'Círculo de Control',
     description: 'Enfoca tu energía donde importa',
     path: '/control',
@@ -126,10 +198,10 @@ export default function Dashboard() {
               }}
             >
               <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl mb-3"
+                className="w-11 h-11 rounded-xl flex items-center justify-center mb-3"
                 style={{ background: `${mod.color}28` }}
               >
-                {mod.icon}
+                {mod.icon(mod.color)}
               </div>
               <h2 className="font-serif font-semibold text-text text-base leading-snug mb-1">
                 {mod.title}
