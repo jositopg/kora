@@ -49,6 +49,16 @@ export interface ValoresData {
   updatedAt: string
 }
 
+// Círculo de Control
+export interface ControlEntry {
+  id: string
+  situacion: string
+  controlo: string[]
+  noControlo: string[]
+  reflexion: string
+  createdAt: string
+}
+
 // Flexibilidad de Identidad
 export interface IdentidadEntry {
   id: string

@@ -51,6 +51,13 @@ const modules: ModuleCard[] = [
     path: '/identidad',
     color: '#7a6b5a',
   },
+  {
+    icon: '◉',
+    title: 'Círculo de Control',
+    description: 'Enfoca tu energía donde importa',
+    path: '/control',
+    color: '#a0633a',
+  },
 ]
 
 function formatDate(): string {
