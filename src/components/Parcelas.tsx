@@ -178,6 +178,7 @@ export default function Parcelas() {
             'Haz lo mismo con la distribución ideal: ¿cómo te gustaría repartir tu tiempo y energía?',
             'Compara ambas distribuciones y responde las preguntas de reflexión. Ahí está el trabajo real.',
           ]}
+          enfoques={['Coaching de vida', 'Activación conductual', 'Terapia de Aceptación y Compromiso (ACT)']}
         />
 
         {/* Toggle parcelas */}

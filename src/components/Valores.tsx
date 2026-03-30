@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
+import ModuleIntro from './ui/ModuleIntro'
 import type { ValoresData, ValorEntry } from '../types'
 
 const DEFAULT_VALORES: ValorEntry[] = [
@@ -159,6 +160,10 @@ export default function Valores() {
         <PageHeader
           title="Brújula de Valores"
           subtitle="¿Cuánto alineamiento sientes con cada valor?"
+        />
+
+        <ModuleIntro
+          enfoques={['Terapia de Aceptación y Compromiso (ACT)', 'Psicología positiva']}
         />
 
         {/* Radar chart */}

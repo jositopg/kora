@@ -185,6 +185,7 @@ export default function Control() {
             'Clasifica cada variable en su círculo: ¿tienes control total, puedes influir en ella, o está completamente fuera de tu alcance?',
             'Responde las preguntas de cierre adaptadas a cada zona: en lo controlable, hacia la acción; en lo incontrolable, hacia la aceptación.',
           ]}
+          enfoques={['Terapia de Aceptación y Compromiso (ACT)', 'Filosofía estoica']}
         />
 
         {/* Paso 1: Preocupación + variables */}

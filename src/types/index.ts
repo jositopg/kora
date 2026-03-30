@@ -63,22 +63,21 @@ export interface ControlEntry {
   createdAt: string
 }
 
-// Flexibilidad de Identidad
-export interface Parte {
+// Radar de Identidad
+export interface RadarParte {
   id: string
   etiqueta: string
-  peso: number
-  situacion: string
-  complementaria?: {
-    etiqueta: string
-    situacion: string
-  }
+  fuente: 'inicial' | 'descubierta'
+  angulo: number
+  distancia: number
 }
 
-export interface IdentidadEntry {
+export interface RadarEntry {
   id: string
-  partes: Parte[]
+  etiquetasIniciales: string[]
+  partes: RadarParte[]
   createdAt: string
+  updatedAt: string
 }
 
 // Voces Internas

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
+import ModuleIntro from './ui/ModuleIntro'
 import type { VozEntry } from '../types'
 
 type Step = 'input' | 'origen' | 'clasificacion' | 'distancia' | 'redialogo' | 'guardado'
@@ -113,6 +114,10 @@ export default function Voces() {
         <PageHeader
           title="Voces Internas"
           subtitle="Explora de dónde vienen los mensajes que te dices"
+        />
+
+        <ModuleIntro
+          enfoques={['Sistemas de Familia Interna (IFS)', 'Terapia centrada en la compasión']}
         />
 
         {/* Paso 1: Registro de la voz */}

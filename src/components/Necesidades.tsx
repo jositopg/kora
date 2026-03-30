@@ -109,6 +109,7 @@ export default function Necesidades() {
             '¿Pudiste atender a esa necesidad? Responde y añade cualquier detalle o reflexión que quieras guardar.',
             'Repite el proceso con tantas necesidades como quieras. Con el tiempo, el historial te mostrará qué patrones se repiten.',
           ]}
+          enfoques={['Comunicación No Violenta (CNV)', 'Teoría de la Autodeterminación']}
         />
 
         {/* Alert */}

@@ -70,6 +70,7 @@ export default function Emociones() {
             'Por último, elige la emoción terciaria más específica. Verás su definición justo debajo para ayudarte a decidir.',
             'Cuando hayas encontrado la que te representa, confírmala. Quedará registrada con la fecha de hoy.',
           ]}
+          enfoques={['Psicología de las emociones', 'Regulación emocional']}
         />
 
         {/* Breadcrumb */}

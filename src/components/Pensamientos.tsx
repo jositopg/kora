@@ -225,6 +225,7 @@ export default function Pensamientos() {
             'Escribe un pensamiento alternativo más equilibrado, que tenga en cuenta todo lo que has explorado.',
             'Guarda el registro. Puedes consultarlo más adelante para ver cómo evolucionan tus patrones.',
           ]}
+          enfoques={['Terapia Cognitivo-Conductual (TCC)', 'Autocompasión']}
         />
 
         {/* Step: Input */}
