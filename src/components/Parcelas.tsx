@@ -321,7 +321,7 @@ export default function Parcelas() {
         >
           {saveMsg || 'Guardar reflexión'}
         </button>
-        <CuriosidadBlock texto="Esta dinámica se inspira en herramientas del coaching de vida y la activación conductual, y recoge ideas de la Terapia de Aceptación y Compromiso (ACT). Los tres coinciden en que observar cómo distribuimos el tiempo y la energía es el primer paso para tomar decisiones más alineadas con lo que realmente importa." />
+        <CuriosidadBlock texto="Esta dinámica se apoya en la activación conductual y en la Terapia de Aceptación y Compromiso (ACT). Ambos enfoques coinciden en que observar cómo distribuimos el tiempo y la energía es el primer paso para tomar decisiones más alineadas con lo que realmente importa." />
         <ProfesionalLink modulo="parcelas" />
       </div>
     </div>
