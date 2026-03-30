@@ -601,8 +601,7 @@ export default function Identidad() {
             )}
 
             <p className="font-sans text-sm text-text-muted text-center mb-5 leading-relaxed">
-              Arrastra cada parte hacia el <strong>centro</strong> si está muy activa hoy,
-              o hacia el <strong>borde</strong> si está más en segundo plano.
+              Arrastra cada parte según cómo la sientes hoy.
             </p>
 
             {/* Radar container */}
@@ -644,34 +643,6 @@ export default function Identidad() {
                 pointerEvents: 'none',
                 opacity: 0.85,
               }}>YO</div>
-
-              {/* Ring label: inner */}
-              <div style={{
-                position: 'absolute',
-                left: '50%',
-                top: `${((VCY - VMAX_R * 0.333) / V) * 100 - 3}%`,
-                transform: 'translateX(-50%)',
-                fontFamily: 'Manrope, sans-serif',
-                fontSize: 8,
-                color: 'var(--color-text-muted)',
-                opacity: 0.5,
-                whiteSpace: 'nowrap',
-                pointerEvents: 'none',
-              }}>Muy activo</div>
-
-              {/* Ring label: outer */}
-              <div style={{
-                position: 'absolute',
-                left: '50%',
-                top: `${((VCY - VMAX_R * 0.98) / V) * 100 - 2.5}%`,
-                transform: 'translateX(-50%)',
-                fontFamily: 'Manrope, sans-serif',
-                fontSize: 8,
-                color: 'var(--color-text-muted)',
-                opacity: 0.5,
-                whiteSpace: 'nowrap',
-                pointerEvents: 'none',
-              }}>En pausa</div>
 
               {/* Satellites */}
               {partes.map((p, i) => {
