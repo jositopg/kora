@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
+import CuriosidadBlock from './ui/CuriosidadBlock'
 import ModuleIntro from './ui/ModuleIntro'
 import { EMOTIONS } from '../data/emotions'
 import type { TertiaryEmotion } from '../types'
@@ -70,7 +71,6 @@ export default function Emociones() {
             'Por último, elige la emoción terciaria más específica. Verás su definición justo debajo para ayudarte a decidir.',
             'Cuando hayas encontrado la que te representa, confírmala. Quedará registrada con la fecha de hoy.',
           ]}
-          enfoques={['Psicología de las emociones', 'Regulación emocional']}
         />
 
         {/* Breadcrumb */}
@@ -362,6 +362,7 @@ export default function Emociones() {
             </button>
           </div>
         )}
+        <CuriosidadBlock texto="Este ejercicio se apoya en la psicología de las emociones y los estudios sobre regulación emocional. La investigación muestra que poner nombre exacto a lo que sentimos —lo que se llama affect labeling— reduce la intensidad de la emoción y nos da más capacidad de gestionarla. Cuanto más preciso es el vocabulario emocional, mayor es esa capacidad." />
         <ProfesionalLink modulo="emociones" />
       </div>
     </div>

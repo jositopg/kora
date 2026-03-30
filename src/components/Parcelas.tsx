@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
+import CuriosidadBlock from './ui/CuriosidadBlock'
 import ModuleIntro from './ui/ModuleIntro'
 import type { ParcelasData, Parcela } from '../types'
 
@@ -178,7 +179,6 @@ export default function Parcelas() {
             'Haz lo mismo con la distribución ideal: ¿cómo te gustaría repartir tu tiempo y energía?',
             'Compara ambas distribuciones y responde las preguntas de reflexión. Ahí está el trabajo real.',
           ]}
-          enfoques={['Coaching de vida', 'Activación conductual', 'Terapia de Aceptación y Compromiso (ACT)']}
         />
 
         {/* Toggle parcelas */}
@@ -321,6 +321,7 @@ export default function Parcelas() {
         >
           {saveMsg || 'Guardar reflexión'}
         </button>
+        <CuriosidadBlock texto="Esta dinámica se inspira en herramientas del coaching de vida y la activación conductual, y recoge ideas de la Terapia de Aceptación y Compromiso (ACT). Los tres coinciden en que observar cómo distribuimos el tiempo y la energía es el primer paso para tomar decisiones más alineadas con lo que realmente importa." />
         <ProfesionalLink modulo="parcelas" />
       </div>
     </div>

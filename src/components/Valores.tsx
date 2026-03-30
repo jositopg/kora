@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
-import ModuleIntro from './ui/ModuleIntro'
+import CuriosidadBlock from './ui/CuriosidadBlock'
 import type { ValoresData, ValorEntry } from '../types'
 
 const DEFAULT_VALORES: ValorEntry[] = [
@@ -162,10 +162,6 @@ export default function Valores() {
           subtitle="¿Cuánto alineamiento sientes con cada valor?"
         />
 
-        <ModuleIntro
-          enfoques={['Terapia de Aceptación y Compromiso (ACT)', 'Psicología positiva']}
-        />
-
         {/* Radar chart */}
         <section
           className="rounded-2xl p-5 mb-6 flex flex-col items-center"
@@ -259,6 +255,7 @@ export default function Valores() {
             })}
           </p>
         )}
+        <CuriosidadBlock texto="Este ejercicio recoge ideas de la Terapia de Aceptación y Compromiso (ACT) y de la psicología positiva. En ACT, los valores no son metas que se alcanzan sino direcciones de vida que se eligen conscientemente. Vivir de forma coherente con ellos —aunque sea de forma imperfecta— es una de las fuentes más consistentes de bienestar psicológico." />
       </div>
     </div>
   )

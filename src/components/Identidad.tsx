@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
+import CuriosidadBlock from './ui/CuriosidadBlock'
 import ModuleIntro from './ui/ModuleIntro'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -330,7 +331,6 @@ export default function Identidad() {
             'Coloca cada parte en tu radar: arrastra las más activas hoy hacia el centro, y aleja las que estén en segundo plano.',
             'Guarda tu radar. Podrás volver a reposicionarlo según cómo te encuentres en cada momento de tu vida.',
           ]}
-          enfoques={['Terapia de Aceptación y Compromiso (ACT)', 'Psicología de la identidad', 'Teoría de la Autocomplejidad']}
         />
 
         {/* ── FASE 1: Vaciado inicial ─────────────────────────────────────── */}
@@ -846,6 +846,7 @@ export default function Identidad() {
           </div>
         )}
 
+        <CuriosidadBlock texto="Esta dinámica se apoya en el concepto del «Yo como Contexto» de la Terapia de Aceptación y Compromiso (ACT), que propone que somos el espacio donde ocurren los pensamientos y emociones, no las etiquetas en sí. También recoge la Teoría de la Autocomplejidad de Patricia Linville, que demuestra que cuantas más facetas independientes tiene nuestro autoconcepto, mayor es la resiliencia ante el estrés." />
         <ProfesionalLink modulo="identidad" />
       </div>
     </div>

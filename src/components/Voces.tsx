@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
-import ModuleIntro from './ui/ModuleIntro'
+import CuriosidadBlock from './ui/CuriosidadBlock'
 import type { VozEntry } from '../types'
 
 type Step = 'input' | 'origen' | 'clasificacion' | 'distancia' | 'redialogo' | 'guardado'
@@ -114,10 +114,6 @@ export default function Voces() {
         <PageHeader
           title="Voces Internas"
           subtitle="Explora de dónde vienen los mensajes que te dices"
-        />
-
-        <ModuleIntro
-          enfoques={['Sistemas de Familia Interna (IFS)', 'Terapia centrada en la compasión']}
         />
 
         {/* Paso 1: Registro de la voz */}
@@ -514,6 +510,7 @@ export default function Voces() {
             </button>
           </div>
         )}
+        <CuriosidadBlock texto="Esta dinámica se apoya en el modelo de Sistemas de Familia Interna (IFS) de Richard Schwartz, que entiende el psiquismo como un sistema de partes o voces con sus propios roles y orígenes. También recoge ideas de la terapia centrada en la compasión, que trabaja específicamente con el crítico interno y propone sustituirlo por una voz más amable y honesta." />
         <ProfesionalLink modulo="voces" />
       </div>
     </div>

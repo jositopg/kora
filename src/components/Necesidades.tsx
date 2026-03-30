@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
+import CuriosidadBlock from './ui/CuriosidadBlock'
 import ModuleIntro from './ui/ModuleIntro'
 import type { NecesidadEntry } from '../types'
 
@@ -109,7 +110,6 @@ export default function Necesidades() {
             '¿Pudiste atender a esa necesidad? Responde y añade cualquier detalle o reflexión que quieras guardar.',
             'Repite el proceso con tantas necesidades como quieras. Con el tiempo, el historial te mostrará qué patrones se repiten.',
           ]}
-          enfoques={['Comunicación No Violenta (CNV)', 'Teoría de la Autodeterminación']}
         />
 
         {/* Alert */}
@@ -349,6 +349,7 @@ export default function Necesidades() {
             })}
           </div>
         </section>
+        <CuriosidadBlock texto="Este registro bebe de la Comunicación No Violenta de Marshall Rosenberg, que sitúa las necesidades en el centro del bienestar y el conflicto, y de la Teoría de la Autodeterminación, que demuestra que cuando nuestras necesidades psicológicas básicas —autonomía, conexión y competencia— no se cubren de forma sostenida, el malestar aparece inevitablemente." />
         <ProfesionalLink modulo="necesidades" />
       </div>
     </div>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
+import CuriosidadBlock from './ui/CuriosidadBlock'
 import ModuleIntro from './ui/ModuleIntro'
 import type { ControlEntry, ControlVariable } from '../types'
 
@@ -185,7 +186,6 @@ export default function Control() {
             'Clasifica cada variable en su círculo: ¿tienes control total, puedes influir en ella, o está completamente fuera de tu alcance?',
             'Responde las preguntas de cierre adaptadas a cada zona: en lo controlable, hacia la acción; en lo incontrolable, hacia la aceptación.',
           ]}
-          enfoques={['Terapia de Aceptación y Compromiso (ACT)', 'Filosofía estoica']}
         />
 
         {/* Paso 1: Preocupación + variables */}
@@ -479,6 +479,7 @@ export default function Control() {
           </div>
         )}
 
+        <CuriosidadBlock texto="Este ejercicio recoge una idea que tiene siglos: la filosofía estoica ya proponía distinguir entre lo que depende de nosotros y lo que no. En psicología contemporánea, la Terapia de Aceptación y Compromiso (ACT) la ha convertido en una herramienta clínica. Dirigir energía hacia lo controlable y practicar la aceptación en lo que no lo es reduce significativamente la ansiedad." />
         <ProfesionalLink modulo="control" />
       </div>
     </div>

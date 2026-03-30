@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
+import CuriosidadBlock from './ui/CuriosidadBlock'
 import ModuleIntro from './ui/ModuleIntro'
 import type { PensamientoEntry } from '../types'
 
@@ -225,7 +226,6 @@ export default function Pensamientos() {
             'Escribe un pensamiento alternativo más equilibrado, que tenga en cuenta todo lo que has explorado.',
             'Guarda el registro. Puedes consultarlo más adelante para ver cómo evolucionan tus patrones.',
           ]}
-          enfoques={['Terapia Cognitivo-Conductual (TCC)', 'Autocompasión']}
         />
 
         {/* Step: Input */}
@@ -513,6 +513,7 @@ export default function Pensamientos() {
             </button>
           </div>
         )}
+        <CuriosidadBlock texto="Esta dinámica está inspirada en la Terapia Cognitivo-Conductual (TCC), uno de los enfoques con más evidencia en psicología clínica. La idea central es que no son los hechos en sí los que generan malestar, sino la interpretación que hacemos de ellos. La pregunta «¿hablarías así a alguien que quieres?» viene de la terapia centrada en la autocompasión." />
         <ProfesionalLink modulo="pensamientos" />
       </div>
     </div>
