@@ -9,7 +9,7 @@ export default function CuriosidadBlock({ texto }: Props) {
 
   return (
     <div
-      className="rounded-2xl mb-5 overflow-hidden"
+      className="rounded-2xl mt-8 mb-5 overflow-hidden"
       style={{
         background: 'var(--color-surface)',
         border: '1px solid var(--color-border)',
