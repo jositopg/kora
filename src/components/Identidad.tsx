@@ -27,19 +27,49 @@ interface RadarEntry {
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
-const TARJETAS = [
-  'Creativo/a', 'Curioso/a', 'Empático/a', 'Resiliente', 'Protector/a',
-  'Valiente', 'Sensible', 'Reflexivo/a', 'Apasionado/a', 'Tranquilo/a',
-  'Divertido/a', 'Honesto/a', 'Generoso/a', 'Adaptable', 'Intuitivo/a',
-  'Soñador/a', 'Cuidador/a', 'Auténtico/a', 'Independiente', 'Leal',
-  'Cuando ayudo a alguien', 'Cuando aprendo algo nuevo',
-  'Cuando cuido a quien quiero', 'Cuando defiendo lo que es justo',
-  'Cuando estoy en silencio', 'Cuando me río con otros',
-  'Cuando supero un miedo', 'Cuando confío en mi instinto',
-  'Cuando creo algo con mis manos', 'Cuando estoy en la naturaleza',
-  'Cuando tomo decisiones difíciles', 'Cuando escucho de verdad a alguien',
-  'Cuando pido ayuda sin culpa', 'Cuando me permito descansar',
-  'Cuando defiendo mis límites',
+interface Tarjeta {
+  texto: string
+  calificativo?: string // si está presente, es lo que se añade al radar
+}
+
+const TARJETAS: Tarjeta[] = [
+  // ── Calificativos directos ──
+  { texto: 'Creativo/a' },
+  { texto: 'Curioso/a' },
+  { texto: 'Empático/a' },
+  { texto: 'Resiliente' },
+  { texto: 'Protector/a' },
+  { texto: 'Valiente' },
+  { texto: 'Sensible' },
+  { texto: 'Reflexivo/a' },
+  { texto: 'Apasionado/a' },
+  { texto: 'Tranquilo/a' },
+  { texto: 'Divertido/a' },
+  { texto: 'Honesto/a' },
+  { texto: 'Generoso/a' },
+  { texto: 'Adaptable' },
+  { texto: 'Intuitivo/a' },
+  { texto: 'Soñador/a' },
+  { texto: 'Cuidador/a' },
+  { texto: 'Auténtico/a' },
+  { texto: 'Independiente' },
+  { texto: 'Leal' },
+  // ── Frases situacionales → calificativo asociado ──
+  { texto: 'Me implico de lleno cuando algo me importa de verdad', calificativo: 'Comprometido/a' },
+  { texto: 'Encuentro una salida cuando las cosas se complican', calificativo: 'Resolutivo/a' },
+  { texto: 'Digo lo que pienso aunque no sea lo más cómodo', calificativo: 'Directo/a' },
+  { texto: 'Confío en mi criterio cuando tengo que tomar una decisión', calificativo: 'Seguro/a' },
+  { texto: 'Escucho sin interrumpir ni juzgar lo que me cuentan', calificativo: 'Receptivo/a' },
+  { texto: 'Defiendo lo que creo que es justo, aunque me cueste', calificativo: 'Íntegro/a' },
+  { texto: 'Soy capaz de pedir ayuda cuando la necesito', calificativo: 'Humilde' },
+  { texto: 'Genero calma cuando los demás están desbordados', calificativo: 'Regulador/a' },
+  { texto: 'Me tomo tiempo para entender antes de reaccionar', calificativo: 'Pausado/a' },
+  { texto: 'Me permito equivocarme y aprender de ello', calificativo: 'Flexible' },
+  { texto: 'Cuido los detalles cuando algo o alguien me importa', calificativo: 'Detallista' },
+  { texto: 'Mantengo mi postura cuando creo en algo de verdad', calificativo: 'Firme' },
+  { texto: 'Soy capaz de soltar lo que ya no me sirve', calificativo: 'Desapegado/a' },
+  { texto: 'Me resulta fácil mostrar afecto a quienes quiero', calificativo: 'Expresivo/a' },
+  { texto: 'Encuentro belleza o sentido en las pequeñas cosas', calificativo: 'Contemplativo/a' },
 ]
 
 const COLORS = [
@@ -233,7 +263,7 @@ export default function Identidad() {
     if (dir === 'right') {
       const parte: RadarParte = {
         id: `disc_${Date.now()}_${swipeIndex}`,
-        etiqueta: TARJETAS[swipeIndex],
+        etiqueta: TARJETAS[swipeIndex].calificativo ?? TARJETAS[swipeIndex].texto,
         fuente: 'descubierta',
         angulo: 0,
         distancia: 0.88,
@@ -318,8 +348,8 @@ export default function Identidad() {
       <div className="max-w-2xl mx-auto px-6 pt-8">
 
         <PageHeader
-          title="Tu Radar de Identidad"
-          subtitle="Eres más de lo que crees"
+          title="¿Qué te define?"
+          subtitle="Ampliando nuestro autoconcepto"
         />
 
         <ModuleIntro
@@ -467,7 +497,7 @@ export default function Identidad() {
             </div>
 
             <p className="font-sans text-xs text-text-muted text-center mb-4 opacity-70">
-              → Vive en mí &nbsp;·&nbsp; ← No resuena
+              → Me define &nbsp;·&nbsp; ← No me define
             </p>
 
             {/* Card stack */}
@@ -486,7 +516,7 @@ export default function Identidad() {
                     pointerEvents: 'none',
                   }}
                 >
-                  <p className="font-sans text-sm text-text-muted text-center">{TARJETAS[swipeIndex + 1]}</p>
+                  <p className="font-sans text-sm text-text-muted text-center">{TARJETAS[swipeIndex + 1].texto}</p>
                 </div>
               )}
 
@@ -533,7 +563,7 @@ export default function Identidad() {
                     style={{
                       border: '2px solid #7a9e8e', color: '#7a9e8e',
                       opacity: Math.min(1, (swipeOffset - 45) / 55),
-                    }}>EN MÍ ✓</div>
+                    }}>ME DEFINE ✓</div>
                 )}
                 {/* Reject badge */}
                 {swipeOffset < -45 && (
@@ -541,12 +571,22 @@ export default function Identidad() {
                     style={{
                       border: '2px solid #b07068', color: '#b07068',
                       opacity: Math.min(1, (-swipeOffset - 45) / 55),
-                    }}>NO ✕</div>
+                    }}>NO ME DEFINE ✕</div>
                 )}
 
-                <p className="font-serif text-xl font-semibold text-text text-center leading-snug">
-                  {TARJETAS[swipeIndex]}
-                </p>
+                <div className="flex flex-col items-center gap-3">
+                  <p className="font-serif text-xl font-semibold text-text text-center leading-snug">
+                    {TARJETAS[swipeIndex].texto}
+                  </p>
+                  {TARJETAS[swipeIndex].calificativo && (
+                    <span
+                      className="font-sans text-xs font-semibold px-3 py-1 rounded-full"
+                      style={{ background: 'var(--color-primary-container)', color: 'var(--color-primary)' }}
+                    >
+                      {TARJETAS[swipeIndex].calificativo}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -557,14 +597,14 @@ export default function Identidad() {
                 className="flex-1 py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-80 active:scale-95"
                 style={{ background: '#b0706818', color: '#b07068', border: '1.5px solid #b0706850' }}
               >
-                No resuena
+                No me define
               </button>
               <button
                 onClick={() => triggerSwipe('right')}
                 className="flex-1 py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-80 active:scale-95"
                 style={{ background: '#7a9e8e18', color: '#7a9e8e', border: '1.5px solid #7a9e8e50' }}
               >
-                Vive en mí ✓
+                Me define ✓
               </button>
             </div>
 
