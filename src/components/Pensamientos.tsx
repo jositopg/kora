@@ -513,7 +513,7 @@ export default function Pensamientos() {
             </button>
           </div>
         )}
-        <CuriosidadBlock texto="Esta dinámica está inspirada en la Terapia Cognitivo-Conductual (TCC), uno de los enfoques con más evidencia en psicología clínica. La idea central es que no son los hechos en sí los que generan malestar, sino la interpretación que hacemos de ellos. La pregunta «¿hablarías así a alguien que quieres?» viene de la terapia centrada en la autocompasión." />
+        <CuriosidadBlock texto="Esta dinámica está inspirada en la Terapia Cognitivo-Conductual (TCC), uno de los enfoques con más evidencia en psicología clínica. La idea central es que no son los hechos en sí los que generan malestar, sino la interpretación que hacemos de ellos." />
         <ProfesionalLink modulo="pensamientos" />
       </div>
     </div>
