@@ -349,7 +349,7 @@ export default function Necesidades() {
             })}
           </div>
         </section>
-        <CuriosidadBlock texto="Este registro bebe de la Comunicación No Violenta de Marshall Rosenberg, que sitúa las necesidades en el centro del bienestar y el conflicto, y de la Teoría de la Autodeterminación, que demuestra que cuando nuestras necesidades psicológicas básicas —autonomía, conexión y competencia— no se cubren de forma sostenida, el malestar aparece inevitablemente." />
+        <CuriosidadBlock texto="Este registro se apoya en la Teoría de la Autodeterminación, que demuestra que cuando nuestras necesidades psicológicas básicas —autonomía, conexión y competencia— no se cubren de forma sostenida, el malestar aparece inevitablemente." />
         <ProfesionalLink modulo="necesidades" />
       </div>
     </div>
