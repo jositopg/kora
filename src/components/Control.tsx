@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
@@ -6,7 +6,7 @@ import CuriosidadBlock from './ui/CuriosidadBlock'
 import ModuleIntro from './ui/ModuleIntro'
 import type { ControlEntry, ControlVariable } from '../types'
 
-type Step = 'desahogo' | 'extraccion' | 'clasificar' | 'cierre' | 'guardado'
+type Step = 'desahogo' | 'clasificar' | 'cierre' | 'guardado'
 type Zona = 'total' | 'influencia' | 'fuera'
 
 const ZONA_LABELS: Record<Zona, string> = {
@@ -19,6 +19,13 @@ const ZONA_COLORS: Record<Zona, string> = {
   total: '#A0633A',
   influencia: '#b5906a',
   fuera: '#c4b8a8',
+}
+
+function fragmentarTexto(texto: string): string[] {
+  return texto
+    .split(/(?<=[.!?])\s+|\n+/)
+    .map(s => s.trim())
+    .filter(s => s.length > 8)
 }
 
 function TresCirculos({ variables }: { variables: ControlVariable[] }) {
@@ -88,13 +95,22 @@ export default function Control() {
 
   const [step, setStep] = useState<Step>('desahogo')
   const [desahogo, setDesahogo] = useState('')
-  const [partInput, setPartInput] = useState('')
-  const [partes, setPartes] = useState<string[]>([])
-  const [clasificadas, setClasificadas] = useState<ControlVariable[]>([])
+  const [descartadas, setDescartadas] = useState<Set<number>>(new Set())
+  const [clasificadas, setClasificadas] = useState<Map<number, Zona>>(new Map())
   const [cierreAccion, setCierreAccion] = useState('')
   const [cierreSoltar, setCierreSoltar] = useState('')
   const [showHistory, setShowHistory] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  const fragmentos = useMemo(() => fragmentarTexto(desahogo), [desahogo])
+
+  const fragmentosActivos = fragmentos.filter((_, i) => !descartadas.has(i))
+  const clasificadasCount = [...clasificadas.entries()].filter(([i]) => !descartadas.has(i)).length
+  const atLeastOne = clasificadasCount > 0
+
+  const variablesFromClasificadas: ControlVariable[] = fragmentos
+    .map((texto, i) => ({ texto, zona: clasificadas.get(i) }))
+    .filter((v, i) => !descartadas.has(i) && v.zona !== undefined) as ControlVariable[]
 
   const cardStyle = {
     background: 'var(--color-surface)',
@@ -113,43 +129,29 @@ export default function Control() {
   const onBlurTA = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     e.target.style.borderColor = 'var(--color-border)'
   }
-  const onFocusIN = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.target.style.borderColor = 'var(--color-primary)'
-  }
-  const onBlurIN = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.target.style.borderColor = 'var(--color-border)'
-  }
 
-  const addParte = () => {
-    if (!partInput.trim()) return
-    setPartes(prev => [...prev, partInput.trim()])
-    setPartInput('')
-  }
-
-  const removeParte = (idx: number) => {
-    const texto = partes[idx]
-    setPartes(prev => prev.filter((_, i) => i !== idx))
-    setClasificadas(prev => prev.filter(v => v.texto !== texto))
-  }
-
-  const setZona = (texto: string, zona: Zona) => {
+  const setZona = (idx: number, zona: Zona) => {
     setClasificadas(prev => {
-      const existing = prev.find(v => v.texto === texto)
-      if (existing) return prev.map(v => v.texto === texto ? { ...v, zona } : v)
-      return [...prev, { texto, zona }]
+      const next = new Map(prev)
+      next.set(idx, zona)
+      return next
     })
   }
 
-  const getZona = (texto: string): Zona | null =>
-    clasificadas.find(v => v.texto === texto)?.zona ?? null
-
-  const allClasificadas = partes.length > 0 && partes.every(v => getZona(v) !== null)
+  const descartar = (idx: number) => {
+    setDescartadas(prev => new Set([...prev, idx]))
+    setClasificadas(prev => {
+      const next = new Map(prev)
+      next.delete(idx)
+      return next
+    })
+  }
 
   const handleSave = () => {
     const entry: ControlEntry = {
       id: `ctrl_${Date.now()}`,
       preocupacion: desahogo,
-      variables: clasificadas,
+      variables: variablesFromClasificadas,
       reflexiones: {
         accion: cierreAccion,
         soltar: cierreSoltar,
@@ -162,13 +164,18 @@ export default function Control() {
 
   const handleReset = () => {
     setDesahogo('')
-    setPartInput('')
-    setPartes([])
-    setClasificadas([])
+    setDescartadas(new Set())
+    setClasificadas(new Map())
     setCierreAccion('')
     setCierreSoltar('')
     setStep('desahogo')
     setShowHistory(false)
+  }
+
+  const handleContinuarDesahogo = () => {
+    setDescartadas(new Set())
+    setClasificadas(new Map())
+    setStep('clasificar')
   }
 
   return (
@@ -180,12 +187,11 @@ export default function Control() {
         />
 
         <ModuleIntro
-          que="Un espacio para poner en orden lo que te preocupa: primero lo cuentas todo, luego identificas las partes y las sitúas en su zona."
+          que="Un espacio para poner en orden lo que te preocupa: primero lo cuentas todo libremente, y después clasificas cada idea según si depende de ti o no."
           para="Cuando nos preocupamos, solemos mezclar en la misma bolsa cosas que podemos cambiar con cosas que no. Separar esas partes con claridad ayuda a dirigir tu energía donde sí puedes actuar, y a practicar la aceptación en lo que no depende de ti."
           pasos={[
             'Cuéntalo todo: escribe tu situación con el máximo detalle, sin filtros.',
-            'Con tu propio texto a la vista, identifica las partes concretas que componen la situación.',
-            'Clasifica cada parte: ¿tienes control total, puedes influir, o está fuera de tu alcance?',
+            'El texto se fragmenta automáticamente. Para cada idea, elige si tienes control total, puedes influir, o está fuera de tu alcance. Descarta las que no sean relevantes.',
             'Observa el resultado visual y responde dos preguntas de cierre.',
           ]}
         />
@@ -198,23 +204,28 @@ export default function Control() {
                 Cuéntalo todo
               </label>
               <p className="font-sans text-xs text-text-muted mb-4 leading-relaxed">
-                Escribe con detalle qué está pasando, cómo te sientes, qué pensamientos tienes. No hay estructura, no hay formato. Es solo para ti.
+                Escribe con detalle qué está pasando, cómo te sientes, qué pensamientos tienes. No hay estructura, no hay formato correcto. Cuanto más detalle, mejor.
               </p>
               <textarea
                 value={desahogo}
                 onChange={e => setDesahogo(e.target.value)}
-                rows={8}
+                rows={10}
                 placeholder="Escribe aquí todo lo que tienes en la cabeza sobre esta situación..."
                 className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
                 style={inputStyle}
                 onFocus={onFocusTA}
                 onBlur={onBlurTA}
               />
+              {desahogo.trim().length > 0 && (
+                <p className="font-sans text-xs text-text-muted mt-2 text-right">
+                  {fragmentarTexto(desahogo).length} ideas detectadas
+                </p>
+              )}
             </div>
 
             <button
-              onClick={() => setStep('extraccion')}
-              disabled={desahogo.trim().length < 20}
+              onClick={handleContinuarDesahogo}
+              disabled={fragmentarTexto(desahogo).length < 2}
               className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
@@ -267,112 +278,73 @@ export default function Control() {
           </div>
         )}
 
-        {/* PASO 2: Extracción de partes */}
-        {step === 'extraccion' && (
-          <div>
-            {/* Texto del desahogo como referencia */}
-            <div
-              className="rounded-2xl p-4 mb-5"
-              style={{ background: 'rgba(255,248,244,0.85)', border: '1px solid var(--color-border)' }}
-            >
-              <p className="font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">Lo que has escrito</p>
-              <p className="font-sans text-sm text-text leading-relaxed whitespace-pre-wrap line-clamp-6">
-                {desahogo}
-              </p>
-            </div>
-
-            <div className="rounded-2xl p-5 mb-5" style={cardStyle}>
-              <label className="block font-sans text-sm font-semibold text-text mb-2">
-                ¿Qué partes puedes identificar?
-              </label>
-              <p className="font-sans text-xs text-text-muted mb-4 leading-relaxed">
-                Releyendo lo que has escrito, ¿qué aspectos concretos componen esta situación? Nómbralos de forma breve, uno a uno.
-              </p>
-              <div className="flex gap-2 mb-3">
-                <input
-                  type="text"
-                  value={partInput}
-                  onChange={e => setPartInput(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && addParte()}
-                  placeholder="Ej: La respuesta de la otra persona..."
-                  className="flex-1 px-4 py-2.5 rounded-xl font-sans text-sm outline-none"
-                  style={inputStyle}
-                  onFocus={onFocusIN}
-                  onBlur={onBlurIN}
-                />
-                <button
-                  onClick={addParte}
-                  disabled={!partInput.trim()}
-                  className="px-4 py-2.5 rounded-xl font-sans text-sm font-semibold disabled:opacity-40"
-                  style={{ background: 'var(--color-primary-container)', color: 'var(--color-primary)' }}
-                >
-                  + Añadir
-                </button>
-              </div>
-
-              {partes.length > 0 && (
-                <div className="flex flex-col gap-2">
-                  {partes.map((v, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl"
-                      style={{ background: 'var(--color-surface-low)' }}
-                    >
-                      <span className="font-sans text-sm text-text">{v}</span>
-                      <button
-                        onClick={() => removeParte(idx)}
-                        className="font-sans text-text-muted hover:text-text text-base flex-shrink-0"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <button
-              onClick={() => setStep('clasificar')}
-              disabled={partes.length === 0}
-              className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{ background: 'var(--color-primary)', color: '#fff' }}
-            >
-              Clasificar cada parte →
-            </button>
-          </div>
-        )}
-
-        {/* PASO 3: Clasificación */}
+        {/* PASO 2: Clasificación de fragmentos */}
         {step === 'clasificar' && (
           <div>
-            <div className="flex justify-center mb-5">
-              <TresCirculos variables={clasificadas} />
+            {/* Progreso */}
+            <div className="rounded-2xl p-4 mb-4" style={{ background: 'var(--color-primary-container)' }}>
+              <div className="flex justify-between items-center mb-1.5">
+                <p className="font-sans text-xs text-text-muted">
+                  {clasificadasCount} de {fragmentosActivos.length} ideas clasificadas
+                </p>
+                <p className="font-sans text-xs text-text-muted">
+                  {descartadas.size > 0 ? `${descartadas.size} descartadas` : ''}
+                </p>
+              </div>
+              <div className="w-full rounded-full h-1.5" style={{ background: 'var(--color-border)' }}>
+                <div
+                  className="h-1.5 rounded-full transition-all"
+                  style={{
+                    background: 'var(--color-primary)',
+                    width: fragmentosActivos.length > 0
+                      ? `${(clasificadasCount / fragmentosActivos.length) * 100}%`
+                      : '0%'
+                  }}
+                />
+              </div>
             </div>
 
-            <div className="flex justify-center gap-4 mb-5 flex-wrap">
-              {(['total', 'influencia', 'fuera'] as Zona[]).map(z => (
-                <div key={z} className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: ZONA_COLORS[z] }}/>
-                  <span className="font-sans text-xs text-text-muted">{ZONA_LABELS[z]}</span>
-                </div>
-              ))}
-            </div>
+            {/* Vista previa del círculo */}
+            {variablesFromClasificadas.length > 0 && (
+              <div className="rounded-2xl p-4 mb-4" style={cardStyle}>
+                <TresCirculos variables={variablesFromClasificadas} />
+              </div>
+            )}
 
+            {/* Instrucción */}
             <p className="font-sans text-sm text-text-muted mb-4 leading-relaxed text-center">
-              Para cada parte, elige la zona que mejor la describe.
+              Para cada idea, elige su zona. Si no es relevante, descártala.
             </p>
 
             <div className="flex flex-col gap-3 mb-5">
-              {partes.map((v, idx) => {
-                const zona = getZona(v)
+              {fragmentos.map((texto, idx) => {
+                if (descartadas.has(idx)) return null
+                const zona = clasificadas.get(idx) ?? null
                 return (
-                  <div key={idx} className="rounded-2xl p-4" style={cardStyle}>
-                    <p className="font-sans text-sm text-text font-medium mb-3">"{v}"</p>
+                  <div
+                    key={idx}
+                    className="rounded-2xl p-4 transition-all"
+                    style={{
+                      ...cardStyle,
+                      opacity: zona ? 1 : 1,
+                      borderLeft: zona ? `3px solid ${ZONA_COLORS[zona]}` : '3px solid transparent',
+                    }}
+                  >
+                    <div className="flex justify-between items-start gap-2 mb-3">
+                      <p className="font-sans text-sm text-text leading-relaxed">"{texto}"</p>
+                      <button
+                        onClick={() => descartar(idx)}
+                        className="font-sans text-xs text-text-muted hover:text-text flex-shrink-0 mt-0.5"
+                        title="Descartar esta idea"
+                      >
+                        ✕
+                      </button>
+                    </div>
                     <div className="flex gap-2 flex-wrap">
                       {(['total', 'influencia', 'fuera'] as Zona[]).map(z => (
                         <button
                           key={z}
-                          onClick={() => setZona(v, z)}
+                          onClick={() => setZona(idx, z)}
                           className="flex-1 py-2 rounded-full font-sans text-xs font-semibold transition-all min-w-[80px]"
                           style={{
                             background: zona === z ? ZONA_COLORS[z] : 'var(--color-surface-low)',
@@ -390,7 +362,7 @@ export default function Control() {
 
             <button
               onClick={() => setStep('cierre')}
-              disabled={!allClasificadas}
+              disabled={!atLeastOne}
               className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
@@ -399,11 +371,11 @@ export default function Control() {
           </div>
         )}
 
-        {/* PASO 4: Cierre con visual */}
+        {/* PASO 3: Cierre */}
         {step === 'cierre' && (
           <div>
             <div className="rounded-2xl p-6 mb-5" style={cardStyle}>
-              <TresCirculos variables={clasificadas} />
+              <TresCirculos variables={variablesFromClasificadas} />
             </div>
 
             <div className="flex flex-col gap-4 mb-5">
@@ -456,12 +428,12 @@ export default function Control() {
           </div>
         )}
 
-        {/* PASO 5: Guardado */}
+        {/* PASO 4: Guardado */}
         {step === 'guardado' && (
           <div className="text-center">
             <div className="rounded-2xl p-8 mb-5" style={cardStyle}>
               <div className="mb-4">
-                <TresCirculos variables={clasificadas} />
+                <TresCirculos variables={variablesFromClasificadas} />
               </div>
               <h2 className="font-serif text-xl font-semibold text-text mb-3">Guardado</h2>
               <p className="font-sans text-sm text-text-muted leading-relaxed">
