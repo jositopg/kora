@@ -157,7 +157,7 @@ export default function Dashboard() {
               un lugar para estar
             </p>
           </div>
-          <p className="font-sans text-sm text-text-muted capitalize text-center">{dateStr}</p>
+          <p className="font-sans text-sm text-text-muted text-center">{dateStr}</p>
           <p className="font-sans text-base text-text mt-2 text-center">
             ¿Cómo te encuentras hoy? Elige un espacio de reflexión.
           </p>
@@ -173,7 +173,7 @@ export default function Dashboard() {
           style={{ background: 'rgba(255,248,244,0.9)', boxShadow: '0 2px 14px rgba(61,50,40,0.08)', border: '1px solid var(--color-border)' }}
         >
           <p className="font-sans text-sm text-text leading-relaxed mb-4">
-            Estas herramientas forman parte de mi trabajo diario en consulta. Las he adaptado para que puedas usarlas de forma autónoma, en el momento en que las necesites, y a tu ritmo.
+            Estas herramientas forman parte de mi trabajo diario en consulta. Las he adaptado para que puedas usarlas de forma autónoma, en el momento en que las necesites y a tu ritmo.
           </p>
           <p className="font-sans text-sm text-text leading-relaxed mb-5">
             Piensa en este espacio como un <strong>diario personal de autoconocimiento</strong>: todo lo que reflexiones aquí queda guardado en tu dispositivo, solo para ti. Puedes volver cuando quieras a revisar lo que escribiste, ver cómo has evolucionado o simplemente releerlo.
