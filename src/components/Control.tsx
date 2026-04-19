@@ -6,7 +6,7 @@ import CuriosidadBlock from './ui/CuriosidadBlock'
 import ModuleIntro from './ui/ModuleIntro'
 import type { ControlEntry, ControlVariable } from '../types'
 
-type Step = 'preocupacion' | 'validacion' | 'zonas' | 'reflexion' | 'guardado'
+type Step = 'desahogo' | 'extraccion' | 'clasificar' | 'cierre' | 'guardado'
 type Zona = 'total' | 'influencia' | 'fuera'
 
 const ZONA_LABELS: Record<Zona, string> = {
@@ -19,24 +19,6 @@ const ZONA_COLORS: Record<Zona, string> = {
   total: '#A0633A',
   influencia: '#b5906a',
   fuera: '#c4b8a8',
-}
-
-const ZONA_QUESTIONS: Record<Zona, string> = {
-  total: '¿Qué has hecho o puedes hacer tú en esta situación?',
-  influencia: '¿En qué puedes tener algún efecto, aunque no controlarlo del todo?',
-  fuera: '¿Qué depende de otros o de circunstancias que no están en tu mano?',
-}
-
-const ZONA_PLACEHOLDERS: Record<Zona, string> = {
-  total: 'Ej: Puedo hablar con esa persona, puedo cambiar cómo respondo...',
-  influencia: 'Ej: Puedo expresar lo que necesito, aunque la decisión final no sea mía...',
-  fuera: 'Ej: La reacción de la otra persona, el tiempo que tardará en resolverse...',
-}
-
-const SOCRATIC_Q: Record<Zona, string> = {
-  total: '¿Qué acción concreta puedes tomar hoy, aunque sea pequeña?',
-  influencia: '¿Qué está en tu mano hacer para inclinarlo en la dirección que deseas?',
-  fuera: '¿Qué necesitarías aceptar o soltar para no gastar más energía en ello?',
 }
 
 function TresCirculos({ variables }: { variables: ControlVariable[] }) {
@@ -77,11 +59,15 @@ function TresCirculos({ variables }: { variables: ControlVariable[] }) {
                 {ZONA_LABELS[zona]}
               </span>
             </div>
-            <div className="pl-4">
+            <div className="flex flex-wrap gap-2 pl-4">
               {items.map((v, i) => (
-                <p key={i} className="font-sans text-sm text-text leading-relaxed">
+                <span
+                  key={i}
+                  className="px-3 py-1 rounded-full font-sans text-xs font-medium"
+                  style={{ background: `${ZONA_COLORS[zona]}18`, color: 'var(--color-text)', border: `1px solid ${ZONA_COLORS[zona]}40` }}
+                >
                   {v.texto}
-                </p>
+                </span>
               ))}
             </div>
           </div>
@@ -100,10 +86,13 @@ function formatDate(iso: string): string {
 export default function Control() {
   const [entries, setEntries] = useLocalStorage<ControlEntry[]>('kora_control_v2', [])
 
-  const [step, setStep] = useState<Step>('preocupacion')
-  const [preocupacion, setPreocupacion] = useState('')
-  const [zonaTextos, setZonaTextos] = useState<Record<Zona, string>>({ total: '', influencia: '', fuera: '' })
-  const [reflexiones, setReflexiones] = useState<Record<Zona, string>>({ total: '', influencia: '', fuera: '' })
+  const [step, setStep] = useState<Step>('desahogo')
+  const [desahogo, setDesahogo] = useState('')
+  const [partInput, setPartInput] = useState('')
+  const [partes, setPartes] = useState<string[]>([])
+  const [clasificadas, setClasificadas] = useState<ControlVariable[]>([])
+  const [cierreAccion, setCierreAccion] = useState('')
+  const [cierreSoltar, setCierreSoltar] = useState('')
   const [showHistory, setShowHistory] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
@@ -118,32 +107,53 @@ export default function Control() {
     border: '1.5px solid var(--color-border)',
   }
 
-  const onFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+  const onFocusTA = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     e.target.style.borderColor = 'var(--color-primary)'
   }
-  const onBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+  const onBlurTA = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+    e.target.style.borderColor = 'var(--color-border)'
+  }
+  const onFocusIN = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.style.borderColor = 'var(--color-primary)'
+  }
+  const onBlurIN = (e: React.FocusEvent<HTMLInputElement>) => {
     e.target.style.borderColor = 'var(--color-border)'
   }
 
-  const atLeastOneZona = Object.values(zonaTextos).some(t => t.trim().length > 0)
+  const addParte = () => {
+    if (!partInput.trim()) return
+    setPartes(prev => [...prev, partInput.trim()])
+    setPartInput('')
+  }
 
-  const zonasConTexto = (['total', 'influencia', 'fuera'] as Zona[]).filter(
-    z => zonaTextos[z].trim().length > 0
-  )
+  const removeParte = (idx: number) => {
+    const texto = partes[idx]
+    setPartes(prev => prev.filter((_, i) => i !== idx))
+    setClasificadas(prev => prev.filter(v => v.texto !== texto))
+  }
 
-  const variablesFromZonas: ControlVariable[] = zonasConTexto.map(z => ({
-    texto: zonaTextos[z].trim(),
-    zona: z,
-  }))
+  const setZona = (texto: string, zona: Zona) => {
+    setClasificadas(prev => {
+      const existing = prev.find(v => v.texto === texto)
+      if (existing) return prev.map(v => v.texto === texto ? { ...v, zona } : v)
+      return [...prev, { texto, zona }]
+    })
+  }
+
+  const getZona = (texto: string): Zona | null =>
+    clasificadas.find(v => v.texto === texto)?.zona ?? null
+
+  const allClasificadas = partes.length > 0 && partes.every(v => getZona(v) !== null)
 
   const handleSave = () => {
     const entry: ControlEntry = {
       id: `ctrl_${Date.now()}`,
-      preocupacion,
-      variables: variablesFromZonas,
-      reflexiones: Object.fromEntries(
-        zonasConTexto.map(z => [zonaTextos[z].trim(), reflexiones[z]])
-      ),
+      preocupacion: desahogo,
+      variables: clasificadas,
+      reflexiones: {
+        accion: cierreAccion,
+        soltar: cierreSoltar,
+      },
       createdAt: new Date().toISOString(),
     }
     setEntries(prev => [entry, ...prev])
@@ -151,10 +161,13 @@ export default function Control() {
   }
 
   const handleReset = () => {
-    setPreocupacion('')
-    setZonaTextos({ total: '', influencia: '', fuera: '' })
-    setReflexiones({ total: '', influencia: '', fuera: '' })
-    setStep('preocupacion')
+    setDesahogo('')
+    setPartInput('')
+    setPartes([])
+    setClasificadas([])
+    setCierreAccion('')
+    setCierreSoltar('')
+    setStep('desahogo')
     setShowHistory(false)
   }
 
@@ -167,41 +180,41 @@ export default function Control() {
         />
 
         <ModuleIntro
-          que="Un ejercicio para analizar una preocupación: identificas qué partes dependen de ti, en cuáles puedes influir y qué necesitas soltar."
+          que="Un espacio para poner en orden lo que te preocupa: primero lo cuentas todo, luego identificas las partes y las sitúas en su zona."
           para="Cuando nos preocupamos, solemos mezclar en la misma bolsa cosas que podemos cambiar con cosas que no. Separar esas partes con claridad ayuda a dirigir tu energía donde sí puedes actuar, y a practicar la aceptación en lo que no depende de ti."
           pasos={[
-            'Escribe qué te quita la paz hoy.',
-            'Lee el mensaje de pausa. Es parte del ejercicio.',
-            'Responde tres preguntas que te ayudan a organizar la situación en sus zonas naturales.',
-            'Completa las preguntas de cierre: en lo controlable, hacia la acción; en lo incontrolable, hacia la aceptación.',
+            'Cuéntalo todo: escribe tu situación con el máximo detalle, sin filtros.',
+            'Con tu propio texto a la vista, identifica las partes concretas que componen la situación.',
+            'Clasifica cada parte: ¿tienes control total, puedes influir, o está fuera de tu alcance?',
+            'Observa el resultado visual y responde dos preguntas de cierre.',
           ]}
         />
 
-        {/* Paso 1: Preocupación */}
-        {step === 'preocupacion' && (
+        {/* PASO 1: Desahogo */}
+        {step === 'desahogo' && (
           <div>
             <div className="rounded-2xl p-5 mb-5" style={cardStyle}>
               <label className="block font-sans text-sm font-semibold text-text mb-2">
-                ¿Qué te quita la paz hoy?
+                Cuéntalo todo
               </label>
-              <p className="font-sans text-xs text-text-muted mb-3 leading-relaxed">
-                Describe brevemente la situación o preocupación que tienes presente.
+              <p className="font-sans text-xs text-text-muted mb-4 leading-relaxed">
+                Escribe con detalle qué está pasando, cómo te sientes, qué pensamientos tienes. No hay estructura, no hay formato. Es solo para ti.
               </p>
               <textarea
-                value={preocupacion}
-                onChange={e => setPreocupacion(e.target.value)}
-                rows={3}
-                placeholder="Ej: Estoy esperando noticias que no dependen de mí..."
+                value={desahogo}
+                onChange={e => setDesahogo(e.target.value)}
+                rows={8}
+                placeholder="Escribe aquí todo lo que tienes en la cabeza sobre esta situación..."
                 className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
                 style={inputStyle}
-                onFocus={onFocus}
-                onBlur={onBlur}
+                onFocus={onFocusTA}
+                onBlur={onBlurTA}
               />
             </div>
 
             <button
-              onClick={() => setStep('validacion')}
-              disabled={!preocupacion.trim()}
+              onClick={() => setStep('extraccion')}
+              disabled={desahogo.trim().length < 20}
               className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
@@ -234,7 +247,7 @@ export default function Control() {
                           if (!n) return null
                           return (
                             <span key={z} className="font-sans text-xs" style={{ color: ZONA_COLORS[z] }}>
-                              {ZONA_LABELS[z]}
+                              {n} {ZONA_LABELS[z].toLowerCase()}
                             </span>
                           )
                         })}
@@ -242,7 +255,7 @@ export default function Control() {
                     </button>
                     {expandedId === entry.id && (
                       <div className="px-4 pb-4 border-t" style={{ borderColor: 'var(--color-border)' }}>
-                        <div className="flex justify-center my-3">
+                        <div className="my-3">
                           <TresCirculos variables={entry.variables ?? []} />
                         </div>
                       </div>
@@ -254,129 +267,183 @@ export default function Control() {
           </div>
         )}
 
-        {/* Paso 2: Pausa de validación */}
-        {step === 'validacion' && (
+        {/* PASO 2: Extracción de partes */}
+        {step === 'extraccion' && (
           <div>
+            {/* Texto del desahogo como referencia */}
             <div
-              className="rounded-2xl p-6 mb-5"
-              style={{ background: 'rgba(255,248,244,0.9)', boxShadow: '0 2px 16px rgba(61,50,40,0.10)', border: '1.5px solid var(--color-border)' }}
+              className="rounded-2xl p-4 mb-5"
+              style={{ background: 'rgba(255,248,244,0.85)', border: '1px solid var(--color-border)' }}
             >
-              <p className="font-serif text-lg font-semibold text-text mb-4 leading-snug">
-                Antes de continuar
-              </p>
-              <p className="font-sans text-sm text-text leading-relaxed mb-4">
-                Es completamente natural y válido sentir malestar ante lo que no podemos controlar. No tienes que dejar de sentirlo.
-              </p>
-              <p className="font-sans text-sm text-text leading-relaxed mb-4">
-                El objetivo de este ejercicio no es eliminar la preocupación, sino <strong>ayudarte a proteger tu energía</strong>: dirigirla hacia donde sí puedes actuar y encontrar alivio en soltar lo que no te pertenece gestionar.
-              </p>
-              <p className="font-sans text-sm text-text-muted leading-relaxed italic">
-                Si lo que estás sintiendo es un malestar intenso o sostenido, este espacio puede ser un punto de partida, pero no un sustituto de acompañamiento profesional.
+              <p className="font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">Lo que has escrito</p>
+              <p className="font-sans text-sm text-text leading-relaxed whitespace-pre-wrap line-clamp-6">
+                {desahogo}
               </p>
             </div>
 
-            <button
-              onClick={() => setStep('zonas')}
-              className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90"
-              style={{ background: 'var(--color-primary)', color: '#fff' }}
-            >
-              Entendido, continuar
-            </button>
-          </div>
-        )}
+            <div className="rounded-2xl p-5 mb-5" style={cardStyle}>
+              <label className="block font-sans text-sm font-semibold text-text mb-2">
+                ¿Qué partes puedes identificar?
+              </label>
+              <p className="font-sans text-xs text-text-muted mb-4 leading-relaxed">
+                Releyendo lo que has escrito, ¿qué aspectos concretos componen esta situación? Nómbralos de forma breve, uno a uno.
+              </p>
+              <div className="flex gap-2 mb-3">
+                <input
+                  type="text"
+                  value={partInput}
+                  onChange={e => setPartInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && addParte()}
+                  placeholder="Ej: La respuesta de la otra persona..."
+                  className="flex-1 px-4 py-2.5 rounded-xl font-sans text-sm outline-none"
+                  style={inputStyle}
+                  onFocus={onFocusIN}
+                  onBlur={onBlurIN}
+                />
+                <button
+                  onClick={addParte}
+                  disabled={!partInput.trim()}
+                  className="px-4 py-2.5 rounded-xl font-sans text-sm font-semibold disabled:opacity-40"
+                  style={{ background: 'var(--color-primary-container)', color: 'var(--color-primary)' }}
+                >
+                  + Añadir
+                </button>
+              </div>
 
-        {/* Paso 3: Tres preguntas guiadas → zonas */}
-        {step === 'zonas' && (
-          <div>
-            <div className="rounded-2xl p-4 mb-5" style={{ background: 'var(--color-primary-container)' }}>
-              <p className="font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-1">Tu preocupación</p>
-              <p className="font-sans text-sm font-semibold text-text">"{preocupacion}"</p>
-            </div>
-
-            <p className="font-sans text-sm text-text-muted mb-5 leading-relaxed text-center">
-              Responde solo las preguntas que te resulten útiles. No es necesario completarlas todas.
-            </p>
-
-            <div className="flex flex-col gap-4 mb-5">
-              {(['total', 'influencia', 'fuera'] as Zona[]).map(zona => (
-                <div key={zona} className="rounded-2xl p-5" style={cardStyle}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: ZONA_COLORS[zona] }}/>
-                    <span className="font-sans text-xs font-semibold uppercase tracking-wide" style={{ color: ZONA_COLORS[zona] }}>
-                      {ZONA_LABELS[zona]}
-                    </span>
-                  </div>
-                  <p className="font-sans text-sm font-medium text-text mb-3 leading-relaxed">
-                    {ZONA_QUESTIONS[zona]}
-                  </p>
-                  <textarea
-                    value={zonaTextos[zona]}
-                    onChange={e => setZonaTextos(prev => ({ ...prev, [zona]: e.target.value }))}
-                    rows={3}
-                    placeholder={ZONA_PLACEHOLDERS[zona]}
-                    className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
-                    style={inputStyle}
-                    onFocus={onFocus}
-                    onBlur={onBlur}
-                  />
+              {partes.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  {partes.map((v, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl"
+                      style={{ background: 'var(--color-surface-low)' }}
+                    >
+                      <span className="font-sans text-sm text-text">{v}</span>
+                      <button
+                        onClick={() => removeParte(idx)}
+                        className="font-sans text-text-muted hover:text-text text-base flex-shrink-0"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
 
             <button
-              onClick={() => setStep('reflexion')}
-              disabled={!atLeastOneZona}
+              onClick={() => setStep('clasificar')}
+              disabled={partes.length === 0}
               className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
-              Continuar →
+              Clasificar cada parte →
             </button>
           </div>
         )}
 
-        {/* Paso 4: Reflexión */}
-        {step === 'reflexion' && (
+        {/* PASO 3: Clasificación */}
+        {step === 'clasificar' && (
           <div>
-            <div className="rounded-2xl p-4 mb-5" style={{ background: 'var(--color-primary-container)' }}>
-              <p className="font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-1">Tu preocupación</p>
-              <p className="font-sans text-sm font-semibold text-text">"{preocupacion}"</p>
+            <div className="flex justify-center mb-5">
+              <TresCirculos variables={clasificadas} />
             </div>
 
-            <div className="flex justify-center mb-5">
-              <TresCirculos variables={variablesFromZonas} />
+            <div className="flex justify-center gap-4 mb-5 flex-wrap">
+              {(['total', 'influencia', 'fuera'] as Zona[]).map(z => (
+                <div key={z} className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: ZONA_COLORS[z] }}/>
+                  <span className="font-sans text-xs text-text-muted">{ZONA_LABELS[z]}</span>
+                </div>
+              ))}
             </div>
 
             <p className="font-sans text-sm text-text-muted mb-4 leading-relaxed text-center">
-              Para cada zona que has identificado, hay una pregunta de cierre. Respóndela si puedes — o déjala en blanco y sigue adelante.
+              Para cada parte, elige la zona que mejor la describe.
             </p>
 
-            <div className="flex flex-col gap-4 mb-5">
-              {zonasConTexto.map(zona => (
-                <div key={zona} className="rounded-2xl p-5" style={cardStyle}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: ZONA_COLORS[zona] }}/>
-                    <span className="font-sans text-xs font-semibold uppercase tracking-wide" style={{ color: ZONA_COLORS[zona] }}>
-                      {ZONA_LABELS[zona]}
-                    </span>
+            <div className="flex flex-col gap-3 mb-5">
+              {partes.map((v, idx) => {
+                const zona = getZona(v)
+                return (
+                  <div key={idx} className="rounded-2xl p-4" style={cardStyle}>
+                    <p className="font-sans text-sm text-text font-medium mb-3">"{v}"</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {(['total', 'influencia', 'fuera'] as Zona[]).map(z => (
+                        <button
+                          key={z}
+                          onClick={() => setZona(v, z)}
+                          className="flex-1 py-2 rounded-full font-sans text-xs font-semibold transition-all min-w-[80px]"
+                          style={{
+                            background: zona === z ? ZONA_COLORS[z] : 'var(--color-surface-low)',
+                            color: zona === z ? '#fff' : 'var(--color-text-muted)',
+                          }}
+                        >
+                          {ZONA_LABELS[z]}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <p className="font-sans text-xs text-text-muted mb-2 italic leading-relaxed">
-                    "{zonaTextos[zona].trim()}"
-                  </p>
-                  <p className="font-sans text-sm text-text leading-relaxed mb-3">
-                    {SOCRATIC_Q[zona]}
-                  </p>
-                  <textarea
-                    value={reflexiones[zona]}
-                    onChange={e => setReflexiones(prev => ({ ...prev, [zona]: e.target.value }))}
-                    rows={2}
-                    placeholder="Escribe tu respuesta... (opcional)"
-                    className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
-                    style={inputStyle}
-                    onFocus={onFocus}
-                    onBlur={onBlur}
-                  />
-                </div>
-              ))}
+                )
+              })}
+            </div>
+
+            <button
+              onClick={() => setStep('cierre')}
+              disabled={!allClasificadas}
+              className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ background: 'var(--color-primary)', color: '#fff' }}
+            >
+              Ver resultado →
+            </button>
+          </div>
+        )}
+
+        {/* PASO 4: Cierre con visual */}
+        {step === 'cierre' && (
+          <div>
+            <div className="rounded-2xl p-6 mb-5" style={cardStyle}>
+              <TresCirculos variables={clasificadas} />
+            </div>
+
+            <div className="flex flex-col gap-4 mb-5">
+              <div className="rounded-2xl p-5" style={cardStyle}>
+                <p className="font-sans text-sm font-semibold text-text mb-1">
+                  ¿Cuál es la primera acción concreta que puedes dar?
+                </p>
+                <p className="font-sans text-xs text-text-muted mb-3 leading-relaxed">
+                  Aunque sea pequeña. Algo que esté en tu mano hoy.
+                </p>
+                <textarea
+                  value={cierreAccion}
+                  onChange={e => setCierreAccion(e.target.value)}
+                  rows={3}
+                  placeholder="Escribe aquí... (opcional)"
+                  className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
+                  style={inputStyle}
+                  onFocus={onFocusTA}
+                  onBlur={onBlurTA}
+                />
+              </div>
+
+              <div className="rounded-2xl p-5" style={cardStyle}>
+                <p className="font-sans text-sm font-semibold text-text mb-1">
+                  ¿Qué necesitas aprender a soltar?
+                </p>
+                <p className="font-sans text-xs text-text-muted mb-3 leading-relaxed">
+                  De todo lo que está fuera de tu control, ¿qué es lo que más energía te sigue costando dejar ir?
+                </p>
+                <textarea
+                  value={cierreSoltar}
+                  onChange={e => setCierreSoltar(e.target.value)}
+                  rows={3}
+                  placeholder="Escribe aquí... (opcional)"
+                  className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
+                  style={inputStyle}
+                  onFocus={onFocusTA}
+                  onBlur={onBlurTA}
+                />
+              </div>
             </div>
 
             <button
@@ -389,12 +456,12 @@ export default function Control() {
           </div>
         )}
 
-        {/* Paso 5: Guardado */}
+        {/* PASO 5: Guardado */}
         {step === 'guardado' && (
           <div className="text-center">
             <div className="rounded-2xl p-8 mb-5" style={cardStyle}>
-              <div className="flex justify-center mb-4">
-                <TresCirculos variables={variablesFromZonas} />
+              <div className="mb-4">
+                <TresCirculos variables={clasificadas} />
               </div>
               <h2 className="font-serif text-xl font-semibold text-text mb-3">Guardado</h2>
               <p className="font-sans text-sm text-text-muted leading-relaxed">
