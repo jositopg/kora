@@ -358,7 +358,7 @@ export default function Identidad() {
           pasos={[
             'Escribe las etiquetas con las que te describes habitualmente, especialmente las que sientes que te definen de forma limitante.',
             'Explora un mazo de tarjetas: desliza a la derecha las partes que también viven en ti, a la izquierda las que no resuenen.',
-            'Coloca cada parte en tu radar: arrastra las más activas hoy hacia el centro, y aleja las que estén en segundo plano.',
+            'Pon aquellas partes que te definan más en este momento de tu vida más cerca del centro, y las que menos un poco más alejadas.',
             'Guarda tu radar. Podrás volver a reposicionarlo según cómo te encuentres en cada momento de tu vida.',
           ]}
         />
@@ -641,7 +641,7 @@ export default function Identidad() {
             )}
 
             <p className="font-sans text-sm text-text-muted text-center mb-5 leading-relaxed">
-              Arrastra cada parte según cómo la sientes hoy.
+              Pon aquellas partes que te definan más en este momento de tu vida más cerca, y las que menos un poco más alejadas.
             </p>
 
             {/* Radar container */}
