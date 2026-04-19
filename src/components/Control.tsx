@@ -23,9 +23,9 @@ const ZONA_COLORS: Record<Zona, string> = {
 
 function fragmentarTexto(texto: string): string[] {
   return texto
-    .split(/(?<=[.!?])\s+|\n+/)
+    .split(/[.!?]+\s+|\n+/)
     .map(s => s.trim())
-    .filter(s => s.length > 8)
+    .filter(s => s.length > 5)
 }
 
 function TresCirculos({ variables }: { variables: ControlVariable[] }) {
@@ -225,7 +225,7 @@ export default function Control() {
 
             <button
               onClick={handleContinuarDesahogo}
-              disabled={fragmentarTexto(desahogo).length < 2}
+              disabled={fragmentarTexto(desahogo).length < 1}
               className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
