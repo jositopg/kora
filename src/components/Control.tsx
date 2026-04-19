@@ -6,7 +6,7 @@ import CuriosidadBlock from './ui/CuriosidadBlock'
 import ModuleIntro from './ui/ModuleIntro'
 import type { ControlEntry, ControlVariable } from '../types'
 
-type Step = 'preocupacion' | 'validacion' | 'clasificar' | 'reflexion' | 'guardado'
+type Step = 'preocupacion' | 'validacion' | 'zonas' | 'reflexion' | 'guardado'
 type Zona = 'total' | 'influencia' | 'fuera'
 
 const ZONA_LABELS: Record<Zona, string> = {
@@ -21,10 +21,22 @@ const ZONA_COLORS: Record<Zona, string> = {
   fuera: '#c4b8a8',
 }
 
-const SOCRATIC_Q: Record<Zona, (texto: string) => string> = {
-  total: (t) => `Tienes control total sobre "${t}". ¿Qué acción concreta puedes tomar hoy, aunque sea pequeña?`,
-  influencia: (t) => `Puedes influir en "${t}", aunque no controlarlo del todo. ¿Qué está en tu mano hacer para inclinarlo en la dirección que deseas?`,
-  fuera: (t) => `"${t}" está fuera de tu control. ¿Qué necesitarías aceptar o soltar para no gastar más energía en ello?`,
+const ZONA_QUESTIONS: Record<Zona, string> = {
+  total: '¿Qué has hecho o puedes hacer tú en esta situación?',
+  influencia: '¿En qué puedes tener algún efecto, aunque no controlarlo del todo?',
+  fuera: '¿Qué depende de otros o de circunstancias que no están en tu mano?',
+}
+
+const ZONA_PLACEHOLDERS: Record<Zona, string> = {
+  total: 'Ej: Puedo hablar con esa persona, puedo cambiar cómo respondo...',
+  influencia: 'Ej: Puedo expresar lo que necesito, aunque la decisión final no sea mía...',
+  fuera: 'Ej: La reacción de la otra persona, el tiempo que tardará en resolverse...',
+}
+
+const SOCRATIC_Q: Record<Zona, string> = {
+  total: '¿Qué acción concreta puedes tomar hoy, aunque sea pequeña?',
+  influencia: '¿Qué está en tu mano hacer para inclinarlo en la dirección que deseas?',
+  fuera: '¿Qué necesitarías aceptar o soltar para no gastar más energía en ello?',
 }
 
 function TresCirculos({ variables }: { variables: ControlVariable[] }) {
@@ -43,20 +55,17 @@ function TresCirculos({ variables }: { variables: ControlVariable[] }) {
 
   return (
     <div className="w-full">
-      {/* SVG circles — clean, no text inside */}
       <div className="flex justify-center mb-4">
         <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
           <circle cx={cx} cy={cy} r={r3} fill="#ede6db" stroke="#c4b8a8" strokeWidth="1.5"/>
           <circle cx={cx} cy={cy} r={r2} fill="#d4b89a" opacity="0.7"/>
           <circle cx={cx} cy={cy} r={r1} fill="#A0633A" opacity="0.9"/>
-          {/* Zone labels always visible inside rings */}
           <text x={cx} y={cy - r2 - 14} textAnchor="middle" fontSize="9" fill="#7a6b5a" fontFamily="Manrope, sans-serif" fontWeight="600">FUERA DE CONTROL</text>
           <text x={cx} y={cy - r1 - 10} textAnchor="middle" fontSize="8.5" fill="#7a4a28" fontFamily="Manrope, sans-serif" fontWeight="600">INFLUENCIA</text>
           <text x={cx} y={cy + 5} textAnchor="middle" fontSize="8" fill="#fff" fontFamily="Manrope, sans-serif" fontWeight="700">CONTROL</text>
         </svg>
       </div>
 
-      {/* Legend outside the circles — fully readable */}
       {(['fuera', 'influencia', 'total'] as const).map(zona => {
         const items = byZona[zona]
         if (items.length === 0) return null
@@ -68,15 +77,11 @@ function TresCirculos({ variables }: { variables: ControlVariable[] }) {
                 {ZONA_LABELS[zona]}
               </span>
             </div>
-            <div className="flex flex-wrap gap-2 pl-4">
+            <div className="pl-4">
               {items.map((v, i) => (
-                <span
-                  key={i}
-                  className="px-3 py-1 rounded-full font-sans text-xs font-medium"
-                  style={{ background: `${ZONA_COLORS[zona]}18`, color: 'var(--color-text)', border: `1px solid ${ZONA_COLORS[zona]}40` }}
-                >
+                <p key={i} className="font-sans text-sm text-text leading-relaxed">
                   {v.texto}
-                </span>
+                </p>
               ))}
             </div>
           </div>
@@ -97,10 +102,8 @@ export default function Control() {
 
   const [step, setStep] = useState<Step>('preocupacion')
   const [preocupacion, setPreocupacion] = useState('')
-  const [varInput, setVarInput] = useState('')
-  const [variables, setVariables] = useState<string[]>([])
-  const [clasificadas, setClasificadas] = useState<ControlVariable[]>([])
-  const [reflexiones, setReflexiones] = useState<Record<string, string>>({})
+  const [zonaTextos, setZonaTextos] = useState<Record<Zona, string>>({ total: '', influencia: '', fuera: '' })
+  const [reflexiones, setReflexiones] = useState<Record<Zona, string>>({ total: '', influencia: '', fuera: '' })
   const [showHistory, setShowHistory] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
@@ -115,43 +118,32 @@ export default function Control() {
     border: '1.5px solid var(--color-border)',
   }
 
-  const onFocus = (e: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+  const onFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     e.target.style.borderColor = 'var(--color-primary)'
   }
-  const onBlur = (e: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+  const onBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     e.target.style.borderColor = 'var(--color-border)'
   }
 
-  const addVariable = () => {
-    if (!varInput.trim()) return
-    setVariables(prev => [...prev, varInput.trim()])
-    setVarInput('')
-  }
+  const atLeastOneZona = Object.values(zonaTextos).some(t => t.trim().length > 0)
 
-  const removeVariable = (idx: number) => {
-    setVariables(prev => prev.filter((_, i) => i !== idx))
-  }
+  const zonasConTexto = (['total', 'influencia', 'fuera'] as Zona[]).filter(
+    z => zonaTextos[z].trim().length > 0
+  )
 
-  const setZona = (texto: string, zona: Zona) => {
-    setClasificadas(prev => {
-      const existing = prev.find(v => v.texto === texto)
-      if (existing) return prev.map(v => v.texto === texto ? { ...v, zona } : v)
-      return [...prev, { texto, zona }]
-    })
-  }
-
-  const getZona = (texto: string): Zona | null => {
-    return clasificadas.find(v => v.texto === texto)?.zona ?? null
-  }
-
-  const allClasificadas = variables.every(v => getZona(v) !== null)
+  const variablesFromZonas: ControlVariable[] = zonasConTexto.map(z => ({
+    texto: zonaTextos[z].trim(),
+    zona: z,
+  }))
 
   const handleSave = () => {
     const entry: ControlEntry = {
       id: `ctrl_${Date.now()}`,
       preocupacion,
-      variables: clasificadas,
-      reflexiones,
+      variables: variablesFromZonas,
+      reflexiones: Object.fromEntries(
+        zonasConTexto.map(z => [zonaTextos[z].trim(), reflexiones[z]])
+      ),
       createdAt: new Date().toISOString(),
     }
     setEntries(prev => [entry, ...prev])
@@ -160,10 +152,8 @@ export default function Control() {
 
   const handleReset = () => {
     setPreocupacion('')
-    setVarInput('')
-    setVariables([])
-    setClasificadas([])
-    setReflexiones({})
+    setZonaTextos({ total: '', influencia: '', fuera: '' })
+    setReflexiones({ total: '', influencia: '', fuera: '' })
     setStep('preocupacion')
     setShowHistory(false)
   }
@@ -177,18 +167,17 @@ export default function Control() {
         />
 
         <ModuleIntro
-          que="Un ejercicio visual para analizar una preocupación: la desglosas en partes concretas y clasificas cada una según si tienes control total, puedes influir parcialmente, o está completamente fuera de tu alcance."
-          para="Cuando nos preocupamos, solemos mezclar en la misma bolsa cosas que podemos cambiar con cosas que no. Esto genera ansiedad e inacción. Separar esas variables con claridad ayuda a dirigir tu energía donde sí puedes actuar, y a practicar la aceptación en lo que no depende de ti."
+          que="Un ejercicio para analizar una preocupación: identificas qué partes dependen de ti, en cuáles puedes influir y qué necesitas soltar."
+          para="Cuando nos preocupamos, solemos mezclar en la misma bolsa cosas que podemos cambiar con cosas que no. Separar esas partes con claridad ayuda a dirigir tu energía donde sí puedes actuar, y a practicar la aceptación en lo que no depende de ti."
           pasos={[
-            'Escribe qué te quita la paz hoy: la situación o preocupación que tienes más presente.',
-            'Desglosa esa preocupación en aspectos o variables concretas. Añádelas una a una.',
-            'Lee el mensaje de pausa que aparecerá antes de continuar. Es parte del ejercicio.',
-            'Clasifica cada variable en su círculo: ¿tienes control total, puedes influir en ella, o está completamente fuera de tu alcance?',
-            'Responde las preguntas de cierre adaptadas a cada zona: en lo controlable, hacia la acción; en lo incontrolable, hacia la aceptación.',
+            'Escribe qué te quita la paz hoy.',
+            'Lee el mensaje de pausa. Es parte del ejercicio.',
+            'Responde tres preguntas que te ayudan a organizar la situación en sus zonas naturales.',
+            'Completa las preguntas de cierre: en lo controlable, hacia la acción; en lo incontrolable, hacia la aceptación.',
           ]}
         />
 
-        {/* Paso 1: Preocupación + variables */}
+        {/* Paso 1: Preocupación */}
         {step === 'preocupacion' && (
           <div>
             <div className="rounded-2xl p-5 mb-5" style={cardStyle}>
@@ -210,60 +199,9 @@ export default function Control() {
               />
             </div>
 
-            {preocupacion.trim() && (
-              <div className="rounded-2xl p-5 mb-5" style={cardStyle}>
-                <label className="block font-sans text-sm font-semibold text-text mb-2">
-                  Desglosa la preocupación en partes
-                </label>
-                <p className="font-sans text-xs text-text-muted mb-3 leading-relaxed">
-                  ¿Qué aspectos concretos componen esta situación? Añade cada uno por separado.
-                </p>
-                <div className="flex gap-2 mb-3">
-                  <input
-                    type="text"
-                    value={varInput}
-                    onChange={e => setVarInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && addVariable()}
-                    placeholder="Ej: La respuesta de la otra persona..."
-                    className="flex-1 px-4 py-2.5 rounded-xl font-sans text-sm outline-none"
-                    style={inputStyle}
-                    onFocus={onFocus}
-                    onBlur={onBlur}
-                  />
-                  <button
-                    onClick={addVariable}
-                    disabled={!varInput.trim()}
-                    className="px-4 py-2.5 rounded-xl font-sans text-sm font-semibold disabled:opacity-40"
-                    style={{ background: 'var(--color-primary-container)', color: 'var(--color-primary)' }}
-                  >
-                    + Añadir
-                  </button>
-                </div>
-                {variables.length > 0 && (
-                  <div className="flex flex-col gap-2">
-                    {variables.map((v, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl"
-                        style={{ background: 'var(--color-surface-low)' }}
-                      >
-                        <span className="font-sans text-sm text-text">{v}</span>
-                        <button
-                          onClick={() => removeVariable(idx)}
-                          className="font-sans text-text-muted hover:text-text text-base flex-shrink-0"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
             <button
               onClick={() => setStep('validacion')}
-              disabled={!preocupacion.trim() || variables.length === 0}
+              disabled={!preocupacion.trim()}
               className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
@@ -296,7 +234,7 @@ export default function Control() {
                           if (!n) return null
                           return (
                             <span key={z} className="font-sans text-xs" style={{ color: ZONA_COLORS[z] }}>
-                              {n} {ZONA_LABELS[z].toLowerCase()}
+                              {ZONA_LABELS[z]}
                             </span>
                           )
                         })}
@@ -316,7 +254,7 @@ export default function Control() {
           </div>
         )}
 
-        {/* Paso 2: Pantalla de validación obligatoria */}
+        {/* Paso 2: Pausa de validación */}
         {step === 'validacion' && (
           <div>
             <div
@@ -338,7 +276,7 @@ export default function Control() {
             </div>
 
             <button
-              onClick={() => setStep('clasificar')}
+              onClick={() => setStep('zonas')}
               className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
@@ -347,66 +285,56 @@ export default function Control() {
           </div>
         )}
 
-        {/* Paso 3: Clasificar */}
-        {step === 'clasificar' && (
+        {/* Paso 3: Tres preguntas guiadas → zonas */}
+        {step === 'zonas' && (
           <div>
             <div className="rounded-2xl p-4 mb-5" style={{ background: 'var(--color-primary-container)' }}>
               <p className="font-sans text-xs font-semibold text-text-muted uppercase tracking-wide mb-1">Tu preocupación</p>
               <p className="font-sans text-sm font-semibold text-text">"{preocupacion}"</p>
             </div>
 
-            <div className="flex justify-center mb-5">
-              <TresCirculos variables={clasificadas} />
-            </div>
+            <p className="font-sans text-sm text-text-muted mb-5 leading-relaxed text-center">
+              Responde solo las preguntas que te resulten útiles. No es necesario completarlas todas.
+            </p>
 
-            {/* Leyenda */}
-            <div className="flex justify-center gap-4 mb-5 flex-wrap">
-              {(['total', 'influencia', 'fuera'] as Zona[]).map(z => (
-                <div key={z} className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: ZONA_COLORS[z] }}/>
-                  <span className="font-sans text-xs text-text-muted">{ZONA_LABELS[z]}</span>
+            <div className="flex flex-col gap-4 mb-5">
+              {(['total', 'influencia', 'fuera'] as Zona[]).map(zona => (
+                <div key={zona} className="rounded-2xl p-5" style={cardStyle}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: ZONA_COLORS[zona] }}/>
+                    <span className="font-sans text-xs font-semibold uppercase tracking-wide" style={{ color: ZONA_COLORS[zona] }}>
+                      {ZONA_LABELS[zona]}
+                    </span>
+                  </div>
+                  <p className="font-sans text-sm font-medium text-text mb-3 leading-relaxed">
+                    {ZONA_QUESTIONS[zona]}
+                  </p>
+                  <textarea
+                    value={zonaTextos[zona]}
+                    onChange={e => setZonaTextos(prev => ({ ...prev, [zona]: e.target.value }))}
+                    rows={3}
+                    placeholder={ZONA_PLACEHOLDERS[zona]}
+                    className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
+                    style={inputStyle}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                  />
                 </div>
               ))}
             </div>
 
-            <div className="flex flex-col gap-3 mb-5">
-              {variables.map((v, idx) => {
-                const zona = getZona(v)
-                return (
-                  <div key={idx} className="rounded-2xl p-4" style={cardStyle}>
-                    <p className="font-sans text-sm text-text font-medium mb-3">"{v}"</p>
-                    <div className="flex gap-2 flex-wrap">
-                      {(['total', 'influencia', 'fuera'] as Zona[]).map(z => (
-                        <button
-                          key={z}
-                          onClick={() => setZona(v, z)}
-                          className="flex-1 py-2 rounded-full font-sans text-xs font-semibold transition-all min-w-[80px]"
-                          style={{
-                            background: zona === z ? ZONA_COLORS[z] : 'var(--color-surface-low)',
-                            color: zona === z ? '#fff' : 'var(--color-text-muted)',
-                          }}
-                        >
-                          {ZONA_LABELS[z]}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
             <button
               onClick={() => setStep('reflexion')}
-              disabled={!allClasificadas}
+              disabled={!atLeastOneZona}
               className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
-              Ver reflexiones →
+              Continuar →
             </button>
           </div>
         )}
 
-        {/* Paso 4: Reflexión socrática */}
+        {/* Paso 4: Reflexión */}
         {step === 'reflexion' && (
           <div>
             <div className="rounded-2xl p-4 mb-5" style={{ background: 'var(--color-primary-container)' }}>
@@ -415,27 +343,31 @@ export default function Control() {
             </div>
 
             <div className="flex justify-center mb-5">
-              <TresCirculos variables={clasificadas} />
+              <TresCirculos variables={variablesFromZonas} />
             </div>
 
+            <p className="font-sans text-sm text-text-muted mb-4 leading-relaxed text-center">
+              Para cada zona que has identificado, hay una pregunta de cierre. Respóndela si puedes — o déjala en blanco y sigue adelante.
+            </p>
+
             <div className="flex flex-col gap-4 mb-5">
-              {clasificadas.map((v, idx) => (
-                <div key={idx} className="rounded-2xl p-5" style={cardStyle}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span
-                      className="w-2 h-2 rounded-full flex-shrink-0"
-                      style={{ background: ZONA_COLORS[v.zona] }}
-                    />
-                    <span className="font-sans text-xs font-semibold uppercase tracking-wide" style={{ color: ZONA_COLORS[v.zona] }}>
-                      {ZONA_LABELS[v.zona]}
+              {zonasConTexto.map(zona => (
+                <div key={zona} className="rounded-2xl p-5" style={cardStyle}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: ZONA_COLORS[zona] }}/>
+                    <span className="font-sans text-xs font-semibold uppercase tracking-wide" style={{ color: ZONA_COLORS[zona] }}>
+                      {ZONA_LABELS[zona]}
                     </span>
                   </div>
+                  <p className="font-sans text-xs text-text-muted mb-2 italic leading-relaxed">
+                    "{zonaTextos[zona].trim()}"
+                  </p>
                   <p className="font-sans text-sm text-text leading-relaxed mb-3">
-                    {SOCRATIC_Q[v.zona](v.texto)}
+                    {SOCRATIC_Q[zona]}
                   </p>
                   <textarea
-                    value={reflexiones[v.texto] ?? ''}
-                    onChange={e => setReflexiones(prev => ({ ...prev, [v.texto]: e.target.value }))}
+                    value={reflexiones[zona]}
+                    onChange={e => setReflexiones(prev => ({ ...prev, [zona]: e.target.value }))}
                     rows={2}
                     placeholder="Escribe tu respuesta... (opcional)"
                     className="w-full px-4 py-3 rounded-xl font-sans text-sm resize-none outline-none"
@@ -462,7 +394,7 @@ export default function Control() {
           <div className="text-center">
             <div className="rounded-2xl p-8 mb-5" style={cardStyle}>
               <div className="flex justify-center mb-4">
-                <TresCirculos variables={clasificadas} />
+                <TresCirculos variables={variablesFromZonas} />
               </div>
               <h2 className="font-serif text-xl font-semibold text-text mb-3">Guardado</h2>
               <p className="font-sans text-sm text-text-muted leading-relaxed">
