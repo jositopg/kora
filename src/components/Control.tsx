@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import PageHeader from './ui/PageHeader'
 import ProfesionalLink from './ui/ProfesionalLink'
@@ -19,31 +19,6 @@ const ZONA_COLORS: Record<Zona, string> = {
   total: '#A0633A',
   influencia: '#b5906a',
   fuera: '#c4b8a8',
-}
-
-function fragmentarTexto(texto: string): string[] {
-  const limpiar = (arr: string[]) =>
-    arr.map(s => s.trim()).filter(s => s.length > 10)
-
-  // 1. Intentar por saltos de línea y signos de puntuación
-  let partes = limpiar(texto.split(/[.!?]+\s*\n*|\n{2,}/))
-  if (partes.length >= 3) return partes
-
-  // 2. Intentar también por comas + conjunciones/transiciones frecuentes en español
-  partes = limpiar(
-    texto.split(
-      /[.!?]+|,\s*(?=(?:pero|aunque|sin embargo|además|también|por otro lado|porque|y encima|y además|y también|lo que|me preocupa|no sé|siento|creo|tengo miedo))/i
-    )
-  )
-  if (partes.length >= 2) return partes
-
-  // 3. Fallback: cortar por bloques de ~25 palabras en límites naturales
-  const palabras = texto.split(/\s+/)
-  const bloques: string[] = []
-  for (let i = 0; i < palabras.length; i += 25) {
-    bloques.push(palabras.slice(i, i + 25).join(' '))
-  }
-  return limpiar(bloques)
 }
 
 function TresCirculos({ variables }: { variables: ControlVariable[] }) {
@@ -113,6 +88,9 @@ export default function Control() {
 
   const [step, setStep] = useState<Step>('desahogo')
   const [desahogo, setDesahogo] = useState('')
+  const [fragmentos, setFragmentos] = useState<string[]>([])
+  const [cargando, setCargando] = useState(false)
+  const [errorApi, setErrorApi] = useState('')
   const [descartadas, setDescartadas] = useState<Set<number>>(new Set())
   const [clasificadas, setClasificadas] = useState<Map<number, Zona>>(new Map())
   const [cierreAccion, setCierreAccion] = useState('')
@@ -120,15 +98,13 @@ export default function Control() {
   const [showHistory, setShowHistory] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
-  const fragmentos = useMemo(() => fragmentarTexto(desahogo), [desahogo])
-
-  const fragmentosActivos = fragmentos.filter((_, i) => !descartadas.has(i))
-  const clasificadasCount = [...clasificadas.entries()].filter(([i]) => !descartadas.has(i)).length
+  const fragmentosActivos = fragmentos.filter((_: string, i: number) => !descartadas.has(i))
+  const clasificadasCount = [...clasificadas.entries()].filter(([i]: [number, Zona]) => !descartadas.has(i)).length
   const atLeastOne = clasificadasCount > 0
 
   const variablesFromClasificadas: ControlVariable[] = fragmentos
-    .map((texto, i) => ({ texto, zona: clasificadas.get(i) }))
-    .filter((v, i) => !descartadas.has(i) && v.zona !== undefined) as ControlVariable[]
+    .map((texto: string, i: number) => ({ texto, zona: clasificadas.get(i) }))
+    .filter((v: { texto: string; zona: Zona | undefined }, i: number) => !descartadas.has(i) && v.zona !== undefined) as ControlVariable[]
 
   const cardStyle = {
     background: 'var(--color-surface)',
@@ -146,6 +122,28 @@ export default function Control() {
   }
   const onBlurTA = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     e.target.style.borderColor = 'var(--color-border)'
+  }
+
+  const handleAnalizarTexto = async () => {
+    setCargando(true)
+    setErrorApi('')
+    setDescartadas(new Set())
+    setClasificadas(new Map())
+    try {
+      const res = await fetch('/api/fragmentar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ texto: desahogo }),
+      })
+      const data = await res.json() as { fragmentos?: string[]; error?: string }
+      if (!res.ok || !data.fragmentos) throw new Error(data.error ?? 'Error al analizar el texto')
+      setFragmentos(data.fragmentos)
+      setStep('clasificar')
+    } catch (e) {
+      setErrorApi(e instanceof Error ? e.message : 'Error desconocido')
+    } finally {
+      setCargando(false)
+    }
   }
 
   const setZona = (idx: number, zona: Zona) => {
@@ -182,18 +180,14 @@ export default function Control() {
 
   const handleReset = () => {
     setDesahogo('')
+    setFragmentos([])
     setDescartadas(new Set())
     setClasificadas(new Map())
     setCierreAccion('')
     setCierreSoltar('')
+    setErrorApi('')
     setStep('desahogo')
     setShowHistory(false)
-  }
-
-  const handleContinuarDesahogo = () => {
-    setDescartadas(new Set())
-    setClasificadas(new Map())
-    setStep('clasificar')
   }
 
   return (
@@ -209,7 +203,8 @@ export default function Control() {
           para="Cuando nos preocupamos, solemos mezclar en la misma bolsa cosas que podemos cambiar con cosas que no. Separar esas partes con claridad ayuda a dirigir tu energía donde sí puedes actuar, y a practicar la aceptación en lo que no depende de ti."
           pasos={[
             'Cuéntalo todo: escribe tu situación con el máximo detalle, sin filtros.',
-            'El texto se fragmenta automáticamente. Para cada idea, elige si tienes control total, puedes influir, o está fuera de tu alcance. Descarta las que no sean relevantes.',
+            'El texto se analiza automáticamente y se extraen las ideas principales.',
+            'Para cada idea, elige si tienes control total, puedes influir, o está fuera de tu alcance. Descarta las que no sean relevantes.',
             'Observa el resultado visual y responde dos preguntas de cierre.',
           ]}
         />
@@ -234,20 +229,28 @@ export default function Control() {
                 onFocus={onFocusTA}
                 onBlur={onBlurTA}
               />
-              {desahogo.trim().length > 0 && (
-                <p className="font-sans text-xs text-text-muted mt-2 text-right">
-                  {fragmentarTexto(desahogo).length} ideas detectadas
-                </p>
-              )}
             </div>
 
+            {errorApi && (
+              <div className="rounded-xl px-4 py-3 mb-4 font-sans text-sm text-red-700" style={{ background: '#fee2e2' }}>
+                {errorApi}
+              </div>
+            )}
+
             <button
-              onClick={handleContinuarDesahogo}
-              disabled={fragmentarTexto(desahogo).length < 1}
-              className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+              onClick={handleAnalizarTexto}
+              disabled={desahogo.trim().length < 30 || cargando}
+              className="w-full py-4 rounded-full font-sans font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               style={{ background: 'var(--color-primary)', color: '#fff' }}
             >
-              Continuar →
+              {cargando ? (
+                <>
+                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Analizando tu texto...
+                </>
+              ) : (
+                'Analizar y continuar →'
+              )}
             </button>
 
             {entries.length > 0 && (
@@ -296,18 +299,17 @@ export default function Control() {
           </div>
         )}
 
-        {/* PASO 2: Clasificación de fragmentos */}
+        {/* PASO 2: Clasificación de ideas extraídas */}
         {step === 'clasificar' && (
           <div>
-            {/* Progreso */}
             <div className="rounded-2xl p-4 mb-4" style={{ background: 'var(--color-primary-container)' }}>
               <div className="flex justify-between items-center mb-1.5">
                 <p className="font-sans text-xs text-text-muted">
                   {clasificadasCount} de {fragmentosActivos.length} ideas clasificadas
                 </p>
-                <p className="font-sans text-xs text-text-muted">
-                  {descartadas.size > 0 ? `${descartadas.size} descartadas` : ''}
-                </p>
+                {descartadas.size > 0 && (
+                  <p className="font-sans text-xs text-text-muted">{descartadas.size} descartadas</p>
+                )}
               </div>
               <div className="w-full rounded-full h-1.5" style={{ background: 'var(--color-border)' }}>
                 <div
@@ -316,26 +318,24 @@ export default function Control() {
                     background: 'var(--color-primary)',
                     width: fragmentosActivos.length > 0
                       ? `${(clasificadasCount / fragmentosActivos.length) * 100}%`
-                      : '0%'
+                      : '0%',
                   }}
                 />
               </div>
             </div>
 
-            {/* Vista previa del círculo */}
             {variablesFromClasificadas.length > 0 && (
               <div className="rounded-2xl p-4 mb-4" style={cardStyle}>
                 <TresCirculos variables={variablesFromClasificadas} />
               </div>
             )}
 
-            {/* Instrucción */}
             <p className="font-sans text-sm text-text-muted mb-4 leading-relaxed text-center">
-              Para cada idea, elige su zona. Si no es relevante, descártala.
+              He identificado estas ideas en tu texto. Para cada una, elige su zona o descártala si no la ves relevante.
             </p>
 
             <div className="flex flex-col gap-3 mb-5">
-              {fragmentos.map((texto, idx) => {
+              {fragmentos.map((texto: string, idx: number) => {
                 if (descartadas.has(idx)) return null
                 const zona = clasificadas.get(idx) ?? null
                 return (
@@ -344,7 +344,6 @@ export default function Control() {
                     className="rounded-2xl p-4 transition-all"
                     style={{
                       ...cardStyle,
-                      opacity: zona ? 1 : 1,
                       borderLeft: zona ? `3px solid ${ZONA_COLORS[zona]}` : '3px solid transparent',
                     }}
                   >
