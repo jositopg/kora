@@ -22,10 +22,28 @@ const ZONA_COLORS: Record<Zona, string> = {
 }
 
 function fragmentarTexto(texto: string): string[] {
-  return texto
-    .split(/[.!?]+\s+|\n+/)
-    .map(s => s.trim())
-    .filter(s => s.length > 5)
+  const limpiar = (arr: string[]) =>
+    arr.map(s => s.trim()).filter(s => s.length > 10)
+
+  // 1. Intentar por saltos de línea y signos de puntuación
+  let partes = limpiar(texto.split(/[.!?]+\s*\n*|\n{2,}/))
+  if (partes.length >= 3) return partes
+
+  // 2. Intentar también por comas + conjunciones/transiciones frecuentes en español
+  partes = limpiar(
+    texto.split(
+      /[.!?]+|,\s*(?=(?:pero|aunque|sin embargo|además|también|por otro lado|porque|y encima|y además|y también|lo que|me preocupa|no sé|siento|creo|tengo miedo))/i
+    )
+  )
+  if (partes.length >= 2) return partes
+
+  // 3. Fallback: cortar por bloques de ~25 palabras en límites naturales
+  const palabras = texto.split(/\s+/)
+  const bloques: string[] = []
+  for (let i = 0; i < palabras.length; i += 25) {
+    bloques.push(palabras.slice(i, i + 25).join(' '))
+  }
+  return limpiar(bloques)
 }
 
 function TresCirculos({ variables }: { variables: ControlVariable[] }) {
